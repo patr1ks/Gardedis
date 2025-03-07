@@ -569,7 +569,6 @@
                       xlink:href="#a"
                     />
                   </svg>
-                  中文 (繁體)
                 </div>
               </a>
             </li>
