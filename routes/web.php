@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\RestaurantController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +50,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 });
 
+// restaurant routes
+Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
 
 //end
 

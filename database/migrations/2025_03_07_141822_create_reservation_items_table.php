@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('reservation_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('reservation_id')->references('id')->on('reservations');
+            $table->foreignId('restaurant_id')->references('id')->on('restaurants');
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
