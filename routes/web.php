@@ -48,10 +48,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function ()
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // restaurant routes
+    Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
 });
 
-// restaurant routes
-Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
+
 
 //end
 
