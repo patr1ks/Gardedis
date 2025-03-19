@@ -14,11 +14,27 @@ const dialogVisible = ref(false);
 
 // upload image
 const restaurantImages = ref([]);
+const dialogImageUrl = ref('');
+// const handleFileChange = (file) => {
+//     restaurantImages.value.push(file);
+// }
+const handleFileChange = (file, fileList) => {
+    restaurantImages.value = fileList.map(f => ({
+        name: f.name,
+        url: f.url,
+        raw: f.raw || f,
+    }));
+};
 
-const handleFileChange = (file) => {
-    restaurantImages.value.push(file);
+
+const handlePictureCardPreview = (file) => {
+  dialogImageUrl.value = file.url
+  dialogVisible.value = true
 }
 
+const handleRemove = (file) => {
+  console.log(file)
+}
 
 // restaurant data
 const id = ref('');
@@ -38,66 +54,73 @@ const openAddModal = () => {
 }
 
 // add restaurant method
-const AddRestauarnt = async () => {
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
-for (const image of restaurantImages.value) {
-    formData.append('restaurant_images[]', image.raw);
-}
-
-try {
-    await router.post('restaurants/store', formData, {
-        onSuccess: page => {
-            Swal.fire({
-                toast: true,
-                icon: 'success',
-                position: 'top-end',
-                showConfirmButton: false,
-                title: page.props.flash.success
-            })
-            dialogVisible.value = false;
-            resetFormData();
-            router.push('/admin/restaurants');
-        },
-    });
-
-} catch (err) {
-    console.log(err);
-}
-
-}    
 // const AddRestauarnt = async () => {
 //     const formData = new FormData();
 //     formData.append('title', title.value);
 //     formData.append('description', description.value);
 //     formData.append('price', price.value);
 //     formData.append('category_id', category_id.value);
+// for (const image of restaurantImages.value) {
+//     formData.append('restaurant_images[]', image.raw);
+// }
 
-//     for (const image of restaurantImages.value) {
-//         formData.append('restaurant_images[]', image.raw);
-//     }
-
-//     router.post('restaurants/store', formData, {
-//         onSuccess: (page) => {
+// try {
+//     await router.post('restaurants/store', formData, {
+//         onSuccess: page => {
 //             Swal.fire({
 //                 toast: true,
 //                 icon: 'success',
 //                 position: 'top-end',
 //                 showConfirmButton: false,
-//                 title: page.props.flash?.success || 'Restaurant added successfully!',
-//             });
+//                 title: page.props.flash.success
+//             })
 //             dialogVisible.value = false;
 //             resetFormData();
 //             router.push('/admin/restaurants');
 //         },
-//         onError: (errors) => {
-//             console.error(errors);
-//         },
-//     })
+//     });
+
+// } catch (err) {
+//     console.log(err);
 // }
+
+// }    
+const AddRestauarnt = async () => {
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('description', description.value);
+    formData.append('price', price.value);
+    formData.append('category_id', category_id.value);
+
+    // Append images correctly
+    for (const image of restaurantImages.value) {
+        if (image.raw) {
+            formData.append('restaurant_images[]', image.raw);
+        }
+    }
+
+    try {
+        await router.post('restaurants/store', formData, {
+            // headers: {
+            //     'Content-Type': 'multipart/form-data'
+            // },
+            onSuccess: (page) => {
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    title: page.props.flash?.success || 'Restaurant added successfully!',
+                });
+                dialogVisible.value = false;
+                resetFormData();
+                router.push('/admin/restaurants');
+            },
+        });
+    } catch (err) {
+        console.error(err);
+    }
+};
 
 
 // reset data after adding restaurant
@@ -152,21 +175,32 @@ const openEditModal = (restaurant) => {
             </div>
 
             <!-- image upload -->
-            <!-- <div class="grid md:gap-6">
+            <div class="grid md:gap-6">
                 <div class="relative z-0 w-full mb-5 group">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
-                    <el-upload
+                    <!-- <el-upload
                         v-model:file-list="restaurantImages"
-                        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                         list-type="picture-card"
                         :on-preview="handlePictureCardPreview"
                         :on-remove="handleRemove"
                         :on-change="handleFileChange"
                     >
                         <el-icon><Plus /></el-icon>
+                    </el-upload> -->
+                    <el-upload
+                        v-model:file-list="restaurantImages"
+                        list-type="picture-card"
+                        :on-preview="handlePictureCardPreview"
+                        :on-remove="handleRemove"
+                        :on-change="handleFileChange"
+                        accept="image/*"
+                        :auto-upload="false"
+                    >
+                        <el-icon><Plus /></el-icon>
                     </el-upload>
+
                 </div>
-            </div> -->
+            </div>
 
 
 
@@ -264,51 +298,51 @@ const openEditModal = (restaurant) => {
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-4 py-3">Restaurant name</th>
-                            <th scope="col" class="px-4 py-3">Category</th>
-                            <!-- <th scope="col" class="px-4 py-3">Brand</th> -->
-                            <th scope="col" class="px-4 py-3">Description</th>
-                            <th scope="col" class="px-4 py-3">Price</th>
-                            <th scope="col" class="px-4 py-3">Published</th>
-                            <th scope="col" class="px-4 py-3">
-                                <span class="sr-only">Actions</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
-                            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
-                            <td class="px-4 py-3">{{restaurant.category_id}}</td>
-                            <!-- <td class="px-4 py-3">Apple</td> -->
-                            <td class="px-4 py-3">{{restaurant.description}}</td>
-                            <td class="px-4 py-3">{{restaurant.price}}</td> 
-                            <td class="px-4 py-3">{{restaurant.published}}</td>
-                            <td class="px-4 py-3 flex items-center justify-end">
-                                <button id="apple-imac-27-dropdown-button" data-dropdown-toggle="apple-imac-27-dropdown" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">
-                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                    </svg>
-                                </button>
-                                <div id="apple-imac-27-dropdown" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="apple-imac-27-dropdown-button">
-                                        <!-- <li>
-                                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                                        </li> -->
-                                        <li>
-                                            <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
-                                        </li>
-                                    </ul>
-                                    <div class="py-1">
-                                        <a href="#" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+            <th scope="col" class="px-4 py-3">Restaurant name</th>
+            <th scope="col" class="px-4 py-3">Category</th>
+            <th scope="col" class="px-4 py-3">Description</th>
+            <th scope="col" class="px-4 py-3">Price</th>
+            <th scope="col" class="px-4 py-3">Published</th>
+            <th scope="col" class="px-4 py-3">
+                <span class="sr-only">Actions</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
+            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
+            <td class="px-4 py-3">{{restaurant.category_id}}</td>
+            <td class="px-4 py-3">{{restaurant.description}}</td>
+            <td class="px-4 py-3">{{restaurant.price}}</td> 
+            <td class="px-4 py-3">{{restaurant.published}}</td>
+            <td class="px-4 py-3 flex items-center justify-end">
+                <button :id="'dropdown-button-' + restaurant.id" :data-dropdown-toggle="'dropdown-' + restaurant.id"
+                    class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
+                    type="button">
+                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                </button>
+                <div :id="'dropdown-' + restaurant.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + restaurant.id">
+                        <li>
+                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                        </li>
+                        <li>
+                            <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
+                        </li>
+                    </ul>
+                    <div class="py-1">
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
-                    </tbody>
-                </table>
             </div>
             <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
                 <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
