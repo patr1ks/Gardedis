@@ -15,10 +15,8 @@ class RestaurantController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::get();
+        $restaurants = Restaurant::with('category')->get();
         $categories = Category::get();
-
-        $restaurants = Restaurant::get();
         return Inertia::render('Admin/Restaurant/Index', ['restaurants' => $restaurants, 'categories' => $categories]);
     }
     

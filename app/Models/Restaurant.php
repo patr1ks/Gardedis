@@ -31,4 +31,14 @@ class Restaurant extends Model
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug');
     }
+
+    public function restaurant_images()
+    {
+        return $this->hasMany(RestaurantImage::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

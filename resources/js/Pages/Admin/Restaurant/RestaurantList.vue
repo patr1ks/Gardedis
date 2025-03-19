@@ -313,7 +313,8 @@ const openEditModal = (restaurant) => {
     <tbody>
         <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
-            <td class="px-4 py-3">{{restaurant.category_id}}</td>
+            <!-- <td class="px-4 py-3">{{restaurant.category.name}}</td> -->
+            <td class="px-4 py-3">{{ restaurant.category ? restaurant.category.name : 'No Category' }}</td>
             <td class="px-4 py-3">{{restaurant.description}}</td>
             <td class="px-4 py-3">{{restaurant.price}}</td> 
             <td class="px-4 py-3">{{restaurant.published}}</td>
