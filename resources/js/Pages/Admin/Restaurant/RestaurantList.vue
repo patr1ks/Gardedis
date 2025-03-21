@@ -85,7 +85,7 @@ const openAddModal = () => {
 // }
 
 // }    
-const AddRestauarnt = async () => {
+const AddRestaurant = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('description', description.value);
@@ -131,6 +131,7 @@ const resetFormData = () => {
     price.value = '';
     category_id.value = '';
     restaurantImages.value = [];
+    dialogImageUrl.value = '';
 }
 
 const openEditModal = (restaurant) => {
@@ -138,7 +139,71 @@ const openEditModal = (restaurant) => {
     editMode.value = true;
     dialogVisible.value = true;
     isAddRestaurant.value = false;
+
+    //update data
+    id.value = restaurant.id;
+    title.value = restaurant.title;
+    description.value = restaurant.description;
+    price.value = restaurant.price;
+    category_id.value = restaurant.category_id;
+    restaurant_images.value = restaurant.restaurant_images;
+
 }
+
+//delete image
+const deleteImage = async (rimage, index) => {
+    try {
+        await router.delete('/admin/restaurants/image/'+rimage.id, {
+            onSuccess: (page) => {
+                restaurant_images.value.splice(index, 1);
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    title: page.props.flash.success
+                });
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+// update restaurant
+const updateRestaurant = async () => {
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('description', description.value);
+    formData.append('price', price.value);
+    formData.append('category_id', category_id.value);
+    formData.append('_method', 'PUT');
+
+    for (const image of restaurantImages.value) {
+        formData.append('restaurant_images[]', image.raw);
+    }
+
+    try {
+        await router.post('restaurants/update/'+id.value, formData, {
+            onSuccess: (page) => {
+                dialogVisible.value = false;
+                resetFormData();
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    title: page.props.flash.success
+                });
+            }
+        })
+    } catch (error) {
+        
+    }
+};
+
+
 </script>
 
 <template>
@@ -151,7 +216,7 @@ const openEditModal = (restaurant) => {
             :before-close="handleClose"
         >
             <!-- form start -->
-            <form @submit.prevent="AddRestauarnt()" class="max-w-md mx-auto">
+            <form @submit.prevent="editMode ? updateRestaurant():AddRestaurant()" class="max-w-md mx-auto">
             <div class="relative z-0 w-full mb-5 group">
                 <input v-model="title" type="text" name="floating_title" id="floating_title" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                 <label for="floating_title" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Title</label>
@@ -201,6 +266,24 @@ const openEditModal = (restaurant) => {
 
                 </div>
             </div>
+
+            <!-- list of images for selected product -->
+             <div class="flex flex-nowrap mb-8">
+                <div v-for="(rimage, index) in restaurant_images" :key="rimage.id" class="relative w-32 h-32">
+                    <img class="w-24 h-24 rounded-sm" :src="`/${rimage.image}`" alt="">
+                    <span class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full">
+                        <span @click="deleteImage(rimage, index)" class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">x
+
+                        </span>
+                    </span>
+                </div>
+             </div>
+
+
+            <!-- <div v-for="rimage in restaurant_images" :key="rimage.id" class="relative">
+                <img class="w-20 h-20 rounded-sm" :src="`/${rimage.image}`" alt="Large avatar">
+            </div> -->
+
 
 
 
@@ -317,7 +400,10 @@ const openEditModal = (restaurant) => {
             <td class="px-4 py-3">{{ restaurant.category ? restaurant.category.name : 'No Category' }}</td>
             <td class="px-4 py-3">{{restaurant.description}}</td>
             <td class="px-4 py-3">{{restaurant.price}}</td> 
-            <td class="px-4 py-3">{{restaurant.published}}</td>
+            <td class="px-4 py-3">
+                <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
+                <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
+                </td>
             <td class="px-4 py-3 flex items-center justify-end">
                 <button :id="'dropdown-button-' + restaurant.id" :data-dropdown-toggle="'dropdown-' + restaurant.id"
                     class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
