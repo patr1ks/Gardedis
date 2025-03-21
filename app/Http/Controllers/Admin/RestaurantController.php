@@ -60,7 +60,7 @@ class RestaurantController extends Controller
     public function update(Request $request, $id){
 
         $restaurant = Restaurant::findOrFail($id);
-        
+
         $restaurant->title = $request->title;
         $restaurant->description = $request->description;
         $restaurant->price = $request->price;
@@ -79,33 +79,11 @@ class RestaurantController extends Controller
         }
         $restaurant->update();
         return redirect()->back()->with('success', 'Restaurant updated successfully');
-    }    
+    }
     
-
-    // public function update(Request $request, $id)
-    // {
-    //     $restaurant = Restaurant::findOrFail($id);
-    //     $restaurant->title = $request->title;
-    //     $restaurant->description = $request->description;
-    //     $restaurant->price = $request->price;
-    //     $restaurant->category_id = $request->category_id;
-    //     //chech if image was uploaded
-    //     if ($request->hasFile('restaurant_images')) {
-    //         $restaurantImages = $request->file('restaurant_images');
-    //         foreach ($restaurantImages as $image) {
-    //             //generate unique name for image
-    //             $uniqueName = time().'-'.Str::random(10).'.'.$image->getClientOriginalExtension();
-    //             //store image in public folder
-    //             $image->move('restaurant_images', $uniqueName);
-    //             //create restaurant image record
-    //             RestaurantImage::create([
-    //                 'restaurant_id' => $restaurant->id,
-    //                 'image' => 'restaurant_images/'.$uniqueName,
-    //             ]);
-    //         }
-    //     }
-    //     $restaurant->update();
-    //     return redirect()->back()->with('success', 'Restaurant updated successfully');
-    // }
-
+    public function destroy($id)
+    {
+        $restaurant = Restaurant::findOrFail($id)->delete();
+        return redirect()->route('admin.restaurants.index')->with('success', 'Restaurant deleted successfully');
+    }
 }

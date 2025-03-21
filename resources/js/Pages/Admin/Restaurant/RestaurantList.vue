@@ -5,7 +5,12 @@ import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
 // import VueSweetalert2 from 'vue-sweetalert2';
 
-const restaurants = usePage().props.restaurants;
+
+defineProps({
+    restaurants: Array
+})
+
+// const restaurants = usePage().props.restaurants;
 const categories = usePage().props.categories;
 
 const isAddRestaurant = ref(false);
@@ -15,9 +20,6 @@ const dialogVisible = ref(false);
 // upload image
 const restaurantImages = ref([]);
 const dialogImageUrl = ref('');
-// const handleFileChange = (file) => {
-//     restaurantImages.value.push(file);
-// }
 const handleFileChange = (file, fileList) => {
     restaurantImages.value = fileList.map(f => ({
         name: f.name,
@@ -51,40 +53,7 @@ const openAddModal = () => {
     dialogVisible.value = true;
     editMode.value = false;
     
-}
-
-// add restaurant method
-// const AddRestauarnt = async () => {
-//     const formData = new FormData();
-//     formData.append('title', title.value);
-//     formData.append('description', description.value);
-//     formData.append('price', price.value);
-//     formData.append('category_id', category_id.value);
-// for (const image of restaurantImages.value) {
-//     formData.append('restaurant_images[]', image.raw);
-// }
-
-// try {
-//     await router.post('restaurants/store', formData, {
-//         onSuccess: page => {
-//             Swal.fire({
-//                 toast: true,
-//                 icon: 'success',
-//                 position: 'top-end',
-//                 showConfirmButton: false,
-//                 title: page.props.flash.success
-//             })
-//             dialogVisible.value = false;
-//             resetFormData();
-//             router.push('/admin/restaurants');
-//         },
-//     });
-
-// } catch (err) {
-//     console.log(err);
-// }
-
-// }    
+}  
 const AddRestaurant = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
@@ -203,6 +172,38 @@ const updateRestaurant = async () => {
     }
 };
 
+//delete restaurant
+const deleteRestaurant = async (restaurant, index) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            try {
+                router.delete('restaurants/destroy/'+restaurant.id, {
+                    onSuccess: (page) => {
+                        this.delete(restaurant, index);
+                        Swal.fire({
+                            toast: true,
+                            icon: 'success',
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            title: page.props.flash.success
+                        });
+                    }
+                })
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    })
+}
+
 
 </script>
 
@@ -243,15 +244,6 @@ const updateRestaurant = async () => {
             <div class="grid md:gap-6">
                 <div class="relative z-0 w-full mb-5 group">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
-                    <!-- <el-upload
-                        v-model:file-list="restaurantImages"
-                        list-type="picture-card"
-                        :on-preview="handlePictureCardPreview"
-                        :on-remove="handleRemove"
-                        :on-change="handleFileChange"
-                    >
-                        <el-icon><Plus /></el-icon>
-                    </el-upload> -->
                     <el-upload
                         v-model:file-list="restaurantImages"
                         list-type="picture-card"
@@ -279,26 +271,10 @@ const updateRestaurant = async () => {
                 </div>
              </div>
 
-
-            <!-- <div v-for="rimage in restaurant_images" :key="rimage.id" class="relative">
-                <img class="w-20 h-20 rounded-sm" :src="`/${rimage.image}`" alt="Large avatar">
-            </div> -->
-
-
-
-
             <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
             </form>
             <!-- form end -->
-            
-            <!-- <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="dialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="dialogVisible = false">
-                Confirm
-                </el-button>
-            </div>
-            </template> -->
+        
         </el-dialog>
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -418,11 +394,13 @@ const updateRestaurant = async () => {
                             <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
-                            <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
+                            <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->
+                            <a href="#" @click="openEditModal(restaurant)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
+
                         </li>
                     </ul>
                     <div class="py-1">
-                        <a href="#" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+                        <a href="#" @click="deleteRestaurant(restaurant, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
                     </div>
                 </div>
             </td>

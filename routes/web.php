@@ -54,6 +54,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::post('/restaurants/store', [RestaurantController::class, 'store'])->name('admin.restaurants.store');
     Route::put('/restaurants/update/{id}', [RestaurantController::class, 'update'])->name('admin.restaurants.update');
     Route::delete('/restaurants/image/{id}', [RestaurantController::class, 'deleteImage'])->name('admin.restaurants.image.delete');
+    Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
 
 });
 
