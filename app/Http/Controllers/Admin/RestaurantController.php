@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 use App\Models\Restaurant;
-use App\Models\RestaurantImage;
+use App\Models\Image;
 use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 
@@ -40,8 +40,9 @@ class RestaurantController extends Controller
                 //store image in public folder
                 $image->move('restaurant_images', $uniqueName);
                 //create restaurant image record
-                RestaurantImage::create([
+                Image::create([
                     'restaurant_id' => $restaurant->id,
+                    'event_id' => null,
                     'image' => 'restaurant_images/'.$uniqueName,
                 ]);
             }
@@ -52,8 +53,8 @@ class RestaurantController extends Controller
 
     public function deleteImage($id)
     {
-        $restaurantImage = RestaurantImage::find($id);
-            $image = RestaurantImage::where('id', $id)->delete();
+        $restaurantImage = Image::find($id);
+            $image = Image::where('id', $id)->delete();
             return redirect()->route('admin.restaurants.index')->with('success', 'Image deleted successfully');
     }
 
@@ -71,7 +72,7 @@ class RestaurantController extends Controller
             foreach ($restaurantImages as $image) {
                 $uniqueName = time().'-'.Str::random(10).'.'.$image->getClientOriginalExtension();
                 $image->move('restaurant_images', $uniqueName);
-                RestaurantImage::create([
+                Image::create([
                     'restaurant_id' => $restaurant->id,
                     'image' => 'restaurant_images/'.$uniqueName,
                 ]);

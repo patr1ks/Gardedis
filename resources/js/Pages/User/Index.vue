@@ -36,8 +36,8 @@ defineProps({
             {{ restaurant.title }}
           </h5>
           <!-- {{ restaurant.description }} -->
-          <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{{ restaurant.category.name }}</p>
-          <div class="text-lg font-semibold text-gray-900 dark:text-white mt-auto">Rezervācijas cena:
+          <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Category: {{ restaurant.category.name }}</p>
+          <div class="text-lg font-semibold text-gray-900 dark:text-white mt-auto">Reservation price:
             {{ restaurant.price }} €
           </div>
         </div>

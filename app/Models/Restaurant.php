@@ -34,7 +34,7 @@ class Restaurant extends Model
 
     public function restaurant_images()
     {
-        return $this->hasMany(RestaurantImage::class);
+        return $this->hasMany(Image::class);
     }
 
     public function category()

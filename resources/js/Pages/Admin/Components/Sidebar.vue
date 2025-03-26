@@ -101,23 +101,37 @@ import { Link } from '@inertiajs/vue3';
                 <Link
                   :href="route('admin.restaurants.index')"
                   class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Restaurant</Link
+                  >Restaurants</Link
                 >
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  :href="route('admin.categories.index')"
                   class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Category</a
+                  >Categories</Link
                 >
               </li>
-              <!-- <li>
-                <a
-                  href="#"
+              <li>
+                <Link
+                  :href="route('admin.events.index')"
                   class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Calendar</a
+                  >Events</Link
                 >
-              </li> -->
+              </li>
+              <li>
+                <Link
+                  :href="route('admin.forms.index')"
+                  class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  >Restaurant forms</Link
+                >
+              </li>
+              <li>
+                <Link
+                  :href="route('admin.payments.index')"
+                  class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  >Payments</Link
+                >
+              </li>
             </ul>
           </li>
         </ul>
