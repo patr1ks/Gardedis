@@ -10,7 +10,7 @@ defineProps({
     restaurants: Array
 })
 
-// const restaurants = usePage().props.restaurants;
+const restaurants = usePage().props.restaurants;
 const categories = usePage().props.categories;
 
 const isAddRestaurant = ref(false);
@@ -49,6 +49,7 @@ const category_id = ref('');
 
 // Open the add modal
 const openAddModal = () => {
+    resetFormData();
     isAddRestaurant.value = true;
     dialogVisible.value = true;
     editMode.value = false;
@@ -104,7 +105,7 @@ const resetFormData = () => {
 }
 
 const openEditModal = (restaurant) => {
-    console.log(restaurant);
+    // console.log(restaurant);
     editMode.value = true;
     dialogVisible.value = true;
     isAddRestaurant.value = false;

@@ -7,21 +7,21 @@ import { Plus } from '@element-plus/icons-vue';
 
 
 defineProps({
-    restaurants: Array
+    events: Array
 })
 
-// const restaurants = usePage().props.restaurants;
-const categories = usePage().props.categories;
+const restaurants = usePage().props.restaurants;
+const events = usePage().props.events;
 
-const isAddRestaurant = ref(false);
+const isAddEvent = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
 
 // upload image
-const restaurantImages = ref([]);
+const eventImages = ref([]);
 const dialogImageUrl = ref('');
 const handleFileChange = (file, fileList) => {
-    restaurantImages.value = fileList.map(f => ({
+    eventImages.value = fileList.map(f => ({
         name: f.name,
         url: f.url,
         raw: f.raw || f,
@@ -38,38 +38,39 @@ const handleRemove = (file) => {
   console.log(file)
 }
 
-// restaurant data
+// event data
 const id = ref('');
+const restaurant_id = ref('');
 const title = ref('');
 const description = ref('');
-const price = ref('');
-const published = ref('');
-const restaurant_images = ref([]);
-const category_id = ref('');
+const event_date = ref('');
+const event_images = ref([]);
 
 // Open the add modal
 const openAddModal = () => {
-    isAddRestaurant.value = true;
+    resetFormData();
+    isAddEvent.value = true;
     dialogVisible.value = true;
     editMode.value = false;
     
 }  
-const AddRestaurant = async () => {
+const AddEvent = async () => {
     const formData = new FormData();
+    formData.append('restaurant_id', restaurant_id.value);
     formData.append('title', title.value);
     formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
+    formData.append('event_date', event_date.value);
+
 
     // Append images correctly
-    for (const image of restaurantImages.value) {
+    for (const image of eventImages.value) {
         if (image.raw) {
-            formData.append('restaurant_images[]', image.raw);
+            formData.append('event_images[]', image.raw);
         }
     }
 
     try {
-        await router.post('restaurants/store', formData, {
+        await router.post('events/store', formData, {
             // headers: {
             //     'Content-Type': 'multipart/form-data'
             // },
@@ -79,11 +80,11 @@ const AddRestaurant = async () => {
                     icon: 'success',
                     position: 'top-end',
                     showConfirmButton: false,
-                    title: page.props.flash?.success || 'Restaurant added successfully!',
+                    title: page.props.flash?.success || 'Event added successfully!',
                 });
                 dialogVisible.value = false;
                 resetFormData();
-                router.push('/admin/restaurants');
+                router.push('/admin/events');
             },
         });
     } catch (err) {
@@ -92,39 +93,38 @@ const AddRestaurant = async () => {
 };
 
 
-// reset data after adding restaurant
+// reset data after adding event
 const resetFormData = () => {
     id.value = '';
+    restaurant_id.value = '';
     title.value = '';
     description.value = '';
-    price.value = '';
-    category_id.value = '';
-    restaurantImages.value = [];
+    eventImages.value = [];
     dialogImageUrl.value = '';
 }
 
-const openEditModal = (restaurant) => {
-    console.log(restaurant);
+const openEditModal = (event) => {
+    // console.log(event);
     editMode.value = true;
     dialogVisible.value = true;
-    isAddRestaurant.value = false;
+    isAddEvent.value = false;
 
     //update data
-    id.value = restaurant.id;
-    title.value = restaurant.title;
-    description.value = restaurant.description;
-    price.value = restaurant.price;
-    category_id.value = restaurant.category_id;
-    restaurant_images.value = restaurant.restaurant_images;
+    id.value = event.id;
+    restaurant_id.value = event.restaurant_id;
+    title.value = event.title;
+    description.value = event.description;
+    price.value = event.event_date;
+    event_images.value = event.event_images;
 
 }
 
 //delete image
-const deleteImage = async (rimage, index) => {
+const deleteImage = async (eimage, index) => {
     try {
-        await router.delete('/admin/restaurants/image/'+rimage.id, {
+        await router.delete('/admin/events/image/'+eimage.id, {
             onSuccess: (page) => {
-                restaurant_images.value.splice(index, 1);
+                event_images.value.splice(index, 1);
                 Swal.fire({
                     toast: true,
                     icon: 'success',
@@ -140,8 +140,8 @@ const deleteImage = async (rimage, index) => {
     }
 }
 
-// update restaurant
-const updateRestaurant = async () => {
+// update event
+const updateEvent = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('description', description.value);
@@ -149,12 +149,12 @@ const updateRestaurant = async () => {
     formData.append('category_id', category_id.value);
     formData.append('_method', 'PUT');
 
-    for (const image of restaurantImages.value) {
-        formData.append('restaurant_images[]', image.raw);
+    for (const image of eventImages.value) {
+        formData.append('event_images[]', image.raw);
     }
 
     try {
-        await router.post('restaurants/update/'+id.value, formData, {
+        await router.post('events/update/'+id.value, formData, {
             onSuccess: (page) => {
                 dialogVisible.value = false;
                 resetFormData();
@@ -172,8 +172,8 @@ const updateRestaurant = async () => {
     }
 };
 
-//delete restaurant
-const deleteRestaurant = async (restaurant, index) => {
+//delete event
+const deleteEvent = async (event, index) => {
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -185,9 +185,9 @@ const deleteRestaurant = async (restaurant, index) => {
     }).then((result) => {
         if (result.isConfirmed) {
             try {
-                router.delete('restaurants/destroy/'+restaurant.id, {
+                router.delete('events/destroy/'+event.id, {
                     onSuccess: (page) => {
-                        this.delete(restaurant, index);
+                        this.delete(event, index);
                         Swal.fire({
                             toast: true,
                             icon: 'success',
@@ -209,43 +209,40 @@ const deleteRestaurant = async (restaurant, index) => {
 
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-            <!-- dialog for adding or editing restaurant -->
+            <!-- dialog for adding or editing event -->
         <el-dialog
             v-model="dialogVisible"
-            :title="editMode ? 'Edit restaurant' : 'Add restaurant'"
+            :title="editMode ? 'Edit event' : 'Add event'"
             width="500"
             :before-close="handleClose"
-        >
+        > 
             <!-- form start -->
-            <form @submit.prevent="editMode ? updateRestaurant():AddRestaurant()" class="max-w-md mx-auto">
+            <form @submit.prevent="editMode ? updateEvent():AddEvent()" class="max-w-md mx-auto">
+            <!-- restaurant select -->
+            <div class="relative z-0 w-full mb-5 group">
+                <label for="underline_select">Select restaurant</label>
+                <select id="underline_select" v-model="restaurant_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                    <option v-for="restaurant in restaurants" :key="restaurant.id" :value="restaurant.id" selected>{{restaurant.title}}</option>
+                </select>
+            </div>
             <div class="relative z-0 w-full mb-5 group">
                 <input v-model="title" type="text" name="floating_title" id="floating_title" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                 <label for="floating_title" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Title</label>
             </div>
-            <div class="relative z-0 w-full mb-5 group">
-                <input v-model="price" type="text" name="floating_price" id="floating_price" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_price" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Price</label>
-            </div>
-
-            <!-- category select -->
-            <div class="relative z-0 w-full mb-5 group">
-                <label for="underline_select">Select category</label>
-                <select id="underline_select" v-model="category_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-                    <option v-for="category in categories" :key="category.id" :value="category.id" selected>{{category.name}}</option>
-                </select>
-            </div>
-
             <div>
                 <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
                 <textarea id="message" v-model="description" rows="4" class=" block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write description"></textarea>
             </div>
-
+            <div class="relative z-0 w-full mb-5 group">
+                <input v-model="event_date" type="text" name="floating_date" id="floating_date" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                <label for="floating_date" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Event date</label>
+            </div>
             <!-- image upload -->
             <div class="grid md:gap-6">
                 <div class="relative z-0 w-full mb-5 group">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
                     <el-upload
-                        v-model:file-list="restaurantImages"
+                        v-model:file-list="eventImages"
                         list-type="picture-card"
                         :on-preview="handlePictureCardPreview"
                         :on-remove="handleRemove"
@@ -261,10 +258,10 @@ const deleteRestaurant = async (restaurant, index) => {
 
             <!-- list of images for selected product -->
              <div class="flex flex-nowrap mb-8">
-                <div v-for="(rimage, index) in restaurant_images" :key="rimage.id" class="relative w-32 h-32">
-                    <img class="w-24 h-24 rounded-sm" :src="`/${rimage.image}`" alt="">
+                <div v-for="(eimage, index) in event_images" :key="eimage.id" class="relative w-32 h-32">
+                    <img class="w-24 h-24 rounded-sm" :src="`/${eimage.image}`" alt="">
                     <span class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full">
-                        <span @click="deleteImage(rimage, index)" class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">x
+                        <span @click="deleteImage(eimage, index)" class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">x
 
                         </span>
                     </span>
@@ -299,9 +296,9 @@ const deleteRestaurant = async (restaurant, index) => {
                         <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                         </svg>
-                        Add restaurant
+                        Add event
                     </button>
-                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                    <!-- <div class="flex items-center space-x-3 w-full md:w-auto">
                         <button id="actionsDropdownButton" data-dropdown-toggle="actionsDropdown" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
                             <svg class="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
@@ -352,7 +349,7 @@ const deleteRestaurant = async (restaurant, index) => {
                                 </li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -360,47 +357,44 @@ const deleteRestaurant = async (restaurant, index) => {
     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
         <tr>
             <th scope="col" class="px-4 py-3">Restaurant name</th>
-            <th scope="col" class="px-4 py-3">Category</th>
+            <th scope="col" class="px-4 py-3">Title</th>
             <th scope="col" class="px-4 py-3">Description</th>
-            <th scope="col" class="px-4 py-3">Price</th>
-            <th scope="col" class="px-4 py-3">Published</th>
+            <th scope="col" class="px-4 py-3">Event date</th>
             <th scope="col" class="px-4 py-3">
                 <span class="sr-only">Actions</span>
             </th>
         </tr>
     </thead>
     <tbody>
-        <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
-            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
-            <!-- <td class="px-4 py-3">{{restaurant.category.name}}</td> -->
-            <td class="px-4 py-3">{{ restaurant.category ? restaurant.category.name : 'No Category' }}</td>
-            <td class="px-4 py-3">{{restaurant.description}}</td>
-            <td class="px-4 py-3">{{restaurant.price}}</td> 
-            <td class="px-4 py-3">
+        <tr v-for="event in events" :key="event.id" class="border-b dark:border-gray-700">
+            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ event.restaurant.title }}</th>
+            <td class="px-4 py-3">{{event.title}}</td>
+            <td class="px-4 py-3">{{event.description}}</td>
+            <td class="px-4 py-3">{{event.event_date}}</td> 
+            <!-- <td class="px-4 py-3">
                 <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
                 <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
-                </td>
+                </td> -->
             <td class="px-4 py-3 flex items-center justify-end">
-                <button :id="'dropdown-button-' + restaurant.id" :data-dropdown-toggle="'dropdown-' + restaurant.id"
+                <button :id="'dropdown-button-' + event.id" :data-dropdown-toggle="'dropdown-' + event.id"
                     class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
                     type="button">
                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                     </svg>
                 </button>
-                <div :id="'dropdown-' + restaurant.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + restaurant.id">
+                <div :id="'dropdown-' + event.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + event.id">
                         <li>
                             <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
-                            <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->
-                            <a href="#" @click="openEditModal(restaurant)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
+                            <a href="#" @click="openEditModal(event)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
 
                         </li>
                     </ul>
                     <div class="py-1">
-                        <a href="#" @click="deleteRestaurant(restaurant, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+                        <a href="#" @click="deleteEvent(event, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
                     </div>
                 </div>
             </td>

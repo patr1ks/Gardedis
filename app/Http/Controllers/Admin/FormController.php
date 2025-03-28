@@ -14,4 +14,5 @@ class FormController extends Controller
         $forms = RestaurantForm::get();
         return Inertia::render('Admin/Form/Index', ['forms' => $forms]);
     }
+
 }

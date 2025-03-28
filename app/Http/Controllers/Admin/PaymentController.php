@@ -13,5 +13,6 @@ class PaymentController extends Controller
     {
         $payments = Payment::get();
         return Inertia::render('Admin/Payment/Index', ['payment' => $payments]);
-    }
+    }    
+    
 }

@@ -1,6 +1,6 @@
 <template>
     <AdminLayout>
-        <RestaurantList :restaurants = "restaurants"></RestaurantList>
+        <PaymentList :payments = "payments"></PaymentList>
     </AdminLayout>
 </template>
 
@@ -9,6 +9,6 @@ defineProps({
     restaurants:Array
 })
 import AdminLayout from '../Components/AdminLayout.vue';
-import RestaurantList from '../Restaurant/RestaurantList.vue';
+import PaymentList from '../Payment/PaymentList.vue';
 
 </script>

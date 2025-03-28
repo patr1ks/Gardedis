@@ -50,8 +50,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+    Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
+
     Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
+    Route::post('/events/store', [EventController::class, 'store'])->name('admin.events.store');
+
     Route::get('/forms', [FormController::class, 'index'])->name('admin.forms.index');
+
     Route::get('/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
 
     // restaurant routes

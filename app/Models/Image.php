@@ -15,4 +15,9 @@ class Image extends Model
     {
         return $this->belongsTo(Restaurant::class);
     }
+
+    function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 }
