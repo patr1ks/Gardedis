@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FormController;
 use App\Http\Controllers\Admin\PaymentController;
-
+use App\Http\Controllers\Admin\AdminUserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -51,13 +51,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
 
     Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
     Route::post('/events/store', [EventController::class, 'store'])->name('admin.events.store');
+    Route::delete('/events/image/{id}', [EventController::class, 'deleteImage'])->name('admin.events.image.delete');
+    Route::delete('/events/destroy/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
 
     Route::get('/forms', [FormController::class, 'index'])->name('admin.forms.index');
+    Route::delete('/forms/destroy/{id}', [FormController::class, 'destroy'])->name('admin.forms.destroy');
 
     Route::get('/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
+    Route::delete('/payments/destroy/{id}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
+    
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::post('/users/store', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::delete('/users/destroy/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     // restaurant routes
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');

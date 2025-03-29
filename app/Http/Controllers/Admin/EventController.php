@@ -62,4 +62,10 @@ class EventController extends Controller
             $image = Image::where('id', $id)->delete();
             return redirect()->route('admin.events.index')->with('success', 'Image deleted successfully');
     }
+
+    public function destroy($id)
+    {
+        $restaurant = Event::findOrFail($id)->delete();
+        return redirect()->route('admin.events.index')->with('success', 'Event deleted successfully');
+    }
 }

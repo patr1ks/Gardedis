@@ -37,7 +37,7 @@ class CategoryController extends Controller
     
     public function destroy($id)
     {
-        $restaurant = Category::findOrFail($id)->delete();
+        $category = Category::findOrFail($id)->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully');
     }
 }
