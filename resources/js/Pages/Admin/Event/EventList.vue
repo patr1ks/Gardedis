@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
+import 'flowbite-datepicker';
 // import VueSweetalert2 from 'vue-sweetalert2';
 
 
@@ -12,6 +13,9 @@ defineProps({
 
 const restaurants = usePage().props.restaurants;
 const events = usePage().props.events;
+
+const selectedEvent = ref(null)
+const showEventDialog = ref(false)
 
 const isAddEvent = ref(false);
 const editMode = ref(false);
@@ -205,6 +209,16 @@ const deleteEvent = async (event, index) => {
 }
 
 
+const openEventDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/events/show-data/${id}`)
+        selectedEvent.value = response.data.event
+        showEventDialog.value = true
+    } catch (error) {
+        console.error('Failed to load event data:', error)
+    }
+}
+
 </script>
 
 <template>
@@ -233,10 +247,27 @@ const deleteEvent = async (event, index) => {
                 <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
                 <textarea id="message" v-model="description" rows="4" class=" block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write description"></textarea>
             </div>
-            <div class="relative z-0 w-full mb-5 group">
-                <input v-model="event_date" type="text" name="floating_date" id="floating_date" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_date" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Event date</label>
-            </div>
+            <!-- <div class="relative z-0 w-full mb-5 group"> -->
+                <!-- <div class="relative max-w-sm">
+    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+      <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+      </svg>
+    </div>
+    <input datepicker id="default-datepicker" name="event_date" type="text" required placeholder="Select date"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+  </div> -->
+  
+<div class="relative max-w-sm">
+  <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+    </svg>
+  </div>
+  <input datepicker id="default-datepicker" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date">
+</div>
+
+            <!-- </div> -->
             <!-- image upload -->
             <div class="grid md:gap-6">
                 <div class="relative z-0 w-full mb-5 group">
@@ -273,6 +304,23 @@ const deleteEvent = async (event, index) => {
             <!-- form end -->
         
         </el-dialog>
+
+
+        <el-dialog
+            v-model="showEventDialog"
+            title="Event Details"
+            width="500"
+            :before-close="() => showEventDialog.value = false"
+            >
+            <div v-if="selectedEvent">
+                <p><strong>Title:</strong> {{ selectedEvent.title }}</p>
+                <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
+                <p><strong>Start Time:</strong> {{ new Date(selectedEvent.start_time).toLocaleString() }}</p>
+                <p><strong>End Time:</strong> {{ new Date(selectedEvent.end_time).toLocaleString() }}</p>
+                <p><strong>Restaurant:</strong> {{ selectedEvent.restaurant?.title }}</p>
+            </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -386,7 +434,7 @@ const deleteEvent = async (event, index) => {
                 <div :id="'dropdown-' + event.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + event.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click.prevent="openEventDetails(event.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <a href="#" @click="openEditModal(event)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>

@@ -3,6 +3,8 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
+import axios from 'axios';
+import { ElImage } from 'element-plus'
 // import VueSweetalert2 from 'vue-sweetalert2';
 
 
@@ -16,6 +18,8 @@ const categories = usePage().props.categories;
 const isAddRestaurant = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
+const showdialogVisible = ref(false);
+const selectedRestaurant = ref(null)
 
 // upload image
 const restaurantImages = ref([]);
@@ -206,6 +210,16 @@ const deleteRestaurant = async (restaurant, index) => {
 }
 
 
+const openRestaurantDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/restaurants/show-data/${id}`)
+        selectedRestaurant.value = response.data.restaurant
+        categories.value = response.data.categories // optional
+        showdialogVisible.value = true
+    } catch (error) {
+        console.error('Failed to load restaurant data:', error)
+    }
+}
 </script>
 
 <template>
@@ -277,6 +291,34 @@ const deleteRestaurant = async (restaurant, index) => {
             <!-- form end -->
         
         </el-dialog>
+        <!-- previed restaurant details -->
+        <el-dialog
+            v-model="showdialogVisible"
+            title="Restaurant Details"
+            width="500"
+            :before-close="() => showdialogVisible = false"
+        >
+            <div v-if="selectedRestaurant">
+                <p><strong>Title:</strong> {{ selectedRestaurant.title }}</p>
+                <p><strong>Description:</strong> {{ selectedRestaurant.description }}</p>
+                <p><strong>Price:</strong> {{ selectedRestaurant.price }}</p>
+                <p><strong>Category:</strong> {{ selectedRestaurant.category?.name }}</p>
+
+                <div v-if="selectedRestaurant?.restaurant_images?.length">
+                    <p><strong>Images:</strong></p>
+                    <el-image
+  v-for="image in selectedRestaurant.restaurant_images"
+  :key="image.id"
+  :src="'/' + image.image"
+  :preview-src-list="selectedRestaurant.restaurant_images.map(img => '/' + img.image)"
+  :initial-index="selectedRestaurant.restaurant_images.findIndex(i => i.id === image.id)"
+  style="width: 100px; margin-right: 10px; cursor: pointer"
+  fit="cover"
+/>
+                </div>
+            </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -392,7 +434,7 @@ const deleteRestaurant = async (restaurant, index) => {
                 <div :id="'dropdown-' + restaurant.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + restaurant.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click="openRestaurantDetails(restaurant.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->
@@ -455,3 +497,10 @@ const deleteRestaurant = async (restaurant, index) => {
     </div>
     </section>
 </template>
+
+<style scoped>
+.el-image-viewer__btn--rotate-left,
+.el-image-viewer__btn--rotate-right {
+  display: none !important;
+}
+</style>

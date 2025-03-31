@@ -13,6 +13,9 @@ defineProps({
 // const restaurants = usePage().props.restaurants;
 const forms = usePage().props.forms;
 
+const selectedForm = ref(null)
+const showFormDialog = ref(false)
+
 const isAddRestaurant = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
@@ -204,7 +207,15 @@ const deleteRestaurant = async (restaurant, index) => {
     })
 }
 
-
+const openFormDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/restaurant-forms/show-data/${id}`)
+        selectedForm.value = response.data.form
+        showFormDialog.value = true
+    } catch (error) {
+        console.error('Failed to load form data:', error)
+    }
+}
 </script>
 
 <template>
@@ -276,6 +287,23 @@ const deleteRestaurant = async (restaurant, index) => {
             <!-- form end -->
         
         </el-dialog>
+
+        <el-dialog
+            v-model="showFormDialog"
+            title="Form Details"
+            width="500"
+            :before-close="() => showFormDialog.value = false"
+            >
+            <div v-if="selectedForm">
+                <p><strong>Name:</strong> {{ selectedForm.name }}</p>
+                <p><strong>Email:</strong> {{ selectedForm.email }}</p>
+                <p><strong>Message:</strong> {{ selectedForm.message }}</p>
+                <p><strong>Restaurant:</strong> {{ selectedForm.restaurant?.title }}</p>
+                <p><strong>Submitted by:</strong> {{ selectedForm.user?.name }}</p>
+                <p><strong>Created At:</strong> {{ new Date(selectedForm.created_at).toLocaleString() }}</p>
+            </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -388,7 +416,7 @@ const deleteRestaurant = async (restaurant, index) => {
                 <div :id="'dropdown-' + form.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + form.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click.prevent="openFormDetails(form.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->

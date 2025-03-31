@@ -12,6 +12,8 @@ defineProps({
 
 // const restaurants = usePage().props.restaurants;
 const users = usePage().props.users;
+const selectedUser = ref(null)
+const showUserDialog = ref(false)
 
 const isAddUser = ref(false);
 const editMode = ref(false);
@@ -152,6 +154,16 @@ const deleteUser = async (user, index) => {
     })
 }
 
+const openUserDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/users/show-data/${id}`)
+        selectedUser.value = response.data.user
+        showUserDialog.value = true
+    } catch (error) {
+        console.error('Failed to load user data:', error)
+    }
+}
+
 
 </script>
 
@@ -166,13 +178,6 @@ const deleteUser = async (user, index) => {
         > 
             <!-- form start -->
             <form @submit.prevent="editMode ? updateUser():AddUser()" class="max-w-md mx-auto">
-            <!-- restaurant select -->
-            <!-- <div class="relative z-0 w-full mb-5 group">
-                <label for="underline_select">Select restaurant</label>
-                <select id="underline_select" v-model="restaurant_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-                    <option v-for="restaurant in restaurants" :key="restaurant.id" :value="restaurant.id" selected>{{restaurant.title}}</option>
-                </select>
-            </div> -->
             <div class="relative z-0 w-full mb-5 group">
                 <input v-model="name" type="text" name="floating_name" id="floating_name" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                 <label for="floating_name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Name</label>
@@ -191,6 +196,20 @@ const deleteUser = async (user, index) => {
             <!-- form end -->
         
         </el-dialog>
+
+        <el-dialog
+        v-model="showUserDialog"
+        title="User Details"
+        width="500"
+        :before-close="() => showUserDialog = false"
+        >
+        <div v-if="selectedUser">
+            <p><strong>Name:</strong> {{ selectedUser.name }}</p>
+            <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+            <p><strong>Created at:</strong> {{ new Date(selectedUser.created_at).toLocaleString() }}</p>
+        </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -283,7 +302,7 @@ const deleteUser = async (user, index) => {
                 <div :id="'dropdown-' + user.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + user.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click.prevent="openUserDetails(user.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <a href="#" @click="openEditModal(user)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>

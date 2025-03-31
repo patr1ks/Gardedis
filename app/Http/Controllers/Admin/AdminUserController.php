@@ -48,4 +48,11 @@ class AdminUserController extends Controller
         $user = User::findOrFail($id)->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully');
     }
+
+    public function showData($id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json(['user' => $user]);
+    }
+
 }

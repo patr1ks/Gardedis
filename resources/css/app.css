@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.el-image-viewer__btn--rotate-left,
+.el-image-viewer__btn--rotate-right {
+  display: none !important;
+}
+

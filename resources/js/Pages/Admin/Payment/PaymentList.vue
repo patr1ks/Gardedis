@@ -13,6 +13,9 @@ defineProps({
 // const restaurants = usePage().props.restaurants;
 const payments = usePage().props.payments;
 
+const selectedPayment = ref(null)
+const showPaymentDialog = ref(false)
+
 const isAddRestaurant = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
@@ -204,6 +207,16 @@ const deleteRestaurant = async (restaurant, index) => {
     })
 }
 
+const openPaymentDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/payments/show-data/${id}`)
+        selectedPayment.value = response.data.payment
+        showPaymentDialog.value = true
+    } catch (error) {
+        console.error('Failed to load payment data:', error)
+    }
+}
+
 
 </script>
 
@@ -276,6 +289,23 @@ const deleteRestaurant = async (restaurant, index) => {
             <!-- form end -->
         
         </el-dialog>
+
+        <el-dialog
+            v-model="showPaymentDialog"
+            title="Payment Details"
+            width="500"
+            :before-close="() => showPaymentDialog.value = false"
+            >
+            <div v-if="selectedPayment">
+                <p><strong>Amount:</strong> €{{ selectedPayment.amount }}</p>
+                <p><strong>Status:</strong> {{ selectedPayment.status }}</p>
+                <p><strong>Method:</strong> {{ selectedPayment.method }}</p>
+                <p><strong>User:</strong> {{ selectedPayment.user?.name }}</p>
+                <p><strong>Restaurant:</strong> {{ selectedPayment.restaurant?.title }}</p>
+                <p><strong>Created At:</strong> {{ new Date(selectedPayment.created_at).toLocaleString() }}</p>
+            </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -389,7 +419,7 @@ const deleteRestaurant = async (restaurant, index) => {
                 <div :id="'dropdown-' + payment.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + payment.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click.prevent="openPaymentDetails(payment.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->

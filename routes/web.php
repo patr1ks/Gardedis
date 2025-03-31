@@ -51,15 +51,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
-    Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
+    Route::delete('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+    Route::get('/categories/show-data/{id}', [CategoryController::class, 'showData'])->name('admin.categories.showData');
 
     Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
     Route::post('/events/store', [EventController::class, 'store'])->name('admin.events.store');
     Route::delete('/events/image/{id}', [EventController::class, 'deleteImage'])->name('admin.events.image.delete');
     Route::delete('/events/destroy/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+    Route::get('/events/show-data/{id}', [EventController::class, 'showData'])->name('admin.events.showData');
 
     Route::get('/forms', [FormController::class, 'index'])->name('admin.forms.index');
     Route::delete('/forms/destroy/{id}', [FormController::class, 'destroy'])->name('admin.forms.destroy');
+    Route::get('/forms/show-data/{id}', [FormController::class, 'showData'])->name('admin.forms.showData');
 
     Route::get('/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
     Route::delete('/payments/destroy/{id}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
@@ -67,6 +70,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::post('/users/store', [AdminUserController::class, 'store'])->name('admin.users.store');
     Route::delete('/users/destroy/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users/show-data/{id}', [AdminUserController::class, 'showData'])->name('admin.users.showData');
 
     // restaurant routes
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
@@ -74,6 +78,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::put('/restaurants/update/{id}', [RestaurantController::class, 'update'])->name('admin.restaurants.update');
     Route::delete('/restaurants/image/{id}', [RestaurantController::class, 'deleteImage'])->name('admin.restaurants.image.delete');
     Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
+    Route::get('/restaurants/show-data/{id}', [RestaurantController::class, 'showData'])->name('admin.restaurants.showData');
 
 });
 

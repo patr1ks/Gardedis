@@ -87,4 +87,11 @@ class RestaurantController extends Controller
         $restaurant = Restaurant::findOrFail($id)->delete();
         return redirect()->route('admin.restaurants.index')->with('success', 'Restaurant deleted successfully');
     }
+
+    public function showData($id)
+    {
+        $restaurant = Restaurant::with('category', 'restaurant_images')->findOrFail($id);
+        $categories = Category::get();
+        return response()->json(['restaurant' => $restaurant, 'categories' => $categories]);
+    }
 }

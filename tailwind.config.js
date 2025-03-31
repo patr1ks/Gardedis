@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import 'flowbite-datepicker';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -10,7 +11,8 @@ export default {
         './resources/js/**/*.vue',
         "./index.html",
         "./src/**/*.{vue,js,ts,jsx,tsx}",
-        "./node_modules/flowbite/**/*.js"
+        "./node_modules/flowbite/**/*.js",
+        "./node_modules/flowbite-datepicker/**/*.js"
     ],
 
     theme: {

@@ -13,6 +13,9 @@ defineProps({
 
 const categories = usePage().props.categories;
 
+const selectedCategory = ref(null)
+const showCategoryDialog = ref(false)
+
 const isAddCategory = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
@@ -133,6 +136,16 @@ const deleteCategory = async (category, index) => {
         }
     })
 }
+
+const openCategoryDetails = async (id) => {
+    try {
+        const response = await axios.get(`/admin/categories/show-data/${id}`)
+        selectedCategory.value = response.data.category
+        showCategoryDialog.value = true
+    } catch (error) {
+        console.error('Failed to load category data:', error)
+    }
+}
 </script>
 
 <template>
@@ -155,6 +168,20 @@ const deleteCategory = async (category, index) => {
             <!-- form end -->
         
         </el-dialog>
+
+        <el-dialog
+            v-model="showCategoryDialog"
+            title="Category Details"
+            width="400"
+            :before-close="() => showCategoryDialog = false"
+            >
+            <div v-if="selectedCategory">
+                <p><strong>Name:</strong> {{ selectedCategory.name }}</p>
+                <p><strong>Created at:</strong> {{ new Date(selectedCategory.created_at).toLocaleString() }}</p>
+                <p><strong>Updated at:</strong> {{ new Date(selectedCategory.updated_at).toLocaleString() }}</p>
+            </div>
+        </el-dialog>
+
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -206,7 +233,7 @@ const deleteCategory = async (category, index) => {
                 <div :id="'dropdown-' + category.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + category.id">
                         <li>
-                            <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
+                            <a href="#" @click.prevent="openCategoryDetails(category.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
                         </li>
                         <li>
                             <a href="#" @click="openEditModal(category)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
