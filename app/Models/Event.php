@@ -20,4 +20,9 @@ class Event extends Model
     {
         return $this->hasMany(Image::class);
     }
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
 }

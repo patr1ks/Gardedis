@@ -3,7 +3,9 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
-import 'flowbite-datepicker';
+import { onMounted, nextTick } from 'vue';
+import { Datepicker } from 'flowbite';
+import 'flowbite';
 // import VueSweetalert2 from 'vue-sweetalert2';
 
 
@@ -149,8 +151,8 @@ const updateEvent = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
+    formData.append('event_date', event_date.value);
+    formData.append('restaurant_id', restaurant_id.value);
     formData.append('_method', 'PUT');
 
     for (const image of eventImages.value) {
@@ -218,7 +220,6 @@ const openEventDetails = async (id) => {
         console.error('Failed to load event data:', error)
     }
 }
-
 </script>
 
 <template>
@@ -247,27 +248,15 @@ const openEventDetails = async (id) => {
                 <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
                 <textarea id="message" v-model="description" rows="4" class=" block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write description"></textarea>
             </div>
-            <!-- <div class="relative z-0 w-full mb-5 group"> -->
-                <!-- <div class="relative max-w-sm">
-    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-      <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-      </svg>
-    </div>
-    <input datepicker id="default-datepicker" name="event_date" type="text" required placeholder="Select date"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-  </div> -->
-  
-<div class="relative max-w-sm">
-  <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-    </svg>
-  </div>
-  <input datepicker id="default-datepicker" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date">
-</div>
+            <el-date-picker
+                v-model="event_date"
+                type="date"
+                placeholder="Select date"
+                format="DD.MM.YYYY"
+                value-format="DD.MM.YYYY"
+                class="w-full mt-4"
+            />
 
-            <!-- </div> -->
             <!-- image upload -->
             <div class="grid md:gap-6">
                 <div class="relative z-0 w-full mb-5 group">
@@ -310,14 +299,27 @@ const openEventDetails = async (id) => {
             v-model="showEventDialog"
             title="Event Details"
             width="500"
-            :before-close="() => showEventDialog.value = false"
+            :before-close="() => showEventDialog = false"
             >
             <div v-if="selectedEvent">
                 <p><strong>Title:</strong> {{ selectedEvent.title }}</p>
                 <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
-                <p><strong>Start Time:</strong> {{ new Date(selectedEvent.start_time).toLocaleString() }}</p>
-                <p><strong>End Time:</strong> {{ new Date(selectedEvent.end_time).toLocaleString() }}</p>
+                <!-- <p><strong>Start Time:</strong> {{ new Date(selectedEvent.start_time).toLocaleString() }}</p>
+                <p><strong>End Time:</strong> {{ new Date(selectedEvent.end_time).toLocaleString() }}</p> -->
                 <p><strong>Restaurant:</strong> {{ selectedEvent.restaurant?.title }}</p>
+                
+                <div v-if="selectedEvent?.event_images?.length">
+                    <p><strong>Images:</strong></p>
+                    <el-image
+                    v-for="image in selectedEvent.event_images"
+                    :key="image.id"
+                    :src="'/' + image.image"
+                    :preview-src-list="selectedEvent.event_images.map(img => '/' + img.image)"
+                    :initial-index="selectedEvent.event_images.findIndex(i => i.id === image.id)"
+                    style="width: 100px; margin-right: 10px; cursor: pointer"
+                    fit="cover"
+                    />
+                </div>
             </div>
         </el-dialog>
 
