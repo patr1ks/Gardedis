@@ -28,6 +28,9 @@ use App\Http\Controllers\Admin\AdminUserController;
 
 Route::get('/', [UserController::class, 'index'])->name('user.home');
 Route::get('/restaurant/{title}', [UserController::class, 'restaurant'])->name('user.restaurant');
+Route::get('/events', [UserController::class, 'event'])->name('user.event');
+
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -66,6 +69,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
 
     Route::get('/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
     Route::delete('/payments/destroy/{id}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
+    Route::get('/payments/show-data/{id}', [PaymentController::class, 'showData'])->name('admin.payments.showData');
     
     Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::post('/users/store', [AdminUserController::class, 'store'])->name('admin.users.store');

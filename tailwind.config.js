@@ -1,6 +1,5 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
-import 'flowbite-datepicker';
 
 /** @type {import('tailwindcss').Config} */
 export default {

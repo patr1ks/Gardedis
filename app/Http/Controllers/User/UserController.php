@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Foundation\Application;
 use App\Models\Restaurant;
+use App\Models\Event;
 
 class UserController extends Controller
 {
@@ -21,4 +22,46 @@ class UserController extends Controller
             'phpVersion' => PHP_VERSION,
         ]);
     }
+
+    public function restaurant($title)
+    {
+        $restaurant = Restaurant::where('slug', $title)->with('category', 'restaurant_images')->first();
+        return Inertia::render('User/Restaurant', [
+            'restaurant' => $restaurant,
+            'canLogin' => app('router')->has('login'),
+            'canRegister' => app('router')->has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+        ]);
+    }
+
+    // public function event($title)
+    // {
+    //     $event = Event::where('title', $title)->with('restaurant', 'event_images')->firstOrFail();
+    
+    //     return Inertia::render('User/Event', [
+    //         'event' => $event,
+    //         'canLogin' => app('router')->has('login'),
+    //         'canRegister' => app('router')->has('register'),
+    //         'laravelVersion' => Application::VERSION,
+    //         'phpVersion' => PHP_VERSION,
+    //     ]);
+    // }
+    
+    public function event()
+    {
+        $events = Event::with('restaurant', 'event_images')
+            ->orderBy('id', 'desc')
+            ->limit(8)
+            ->get();
+    
+        return Inertia::render('User/Event', [
+            'events' => $events, // ✅ key change here
+            'canLogin' => app('router')->has('login'),
+            'canRegister' => app('router')->has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+        ]);
+    }
+    
 }

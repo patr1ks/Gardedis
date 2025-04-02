@@ -6,3 +6,10 @@ defineProps({
     restaurants:Array
 })
 </script>
+
+<template>
+    <Header></Header>
+
+
+    <Footer></Footer>
+</template>

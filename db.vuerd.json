@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -295.6995,
-    "scrollLeft": -157,
-    "zoomLevel": 0.73,
+    "scrollTop": -235.5695,
+    "scrollLeft": -202,
+    "zoomLevel": 0.71,
     "show": 431,
     "database": 4,
     "databaseName": "",
@@ -558,18 +558,18 @@
         "tableId": "3efvEKBYgQqadm4EIyvGn",
         "name": "updated_at",
         "comment": "",
-        "dataType": "",
+        "dataType": "TIMESTAMP",
         "default": "",
         "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 62,
           "widthComment": 60,
-          "widthDataType": 60,
+          "widthDataType": 65,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1741354048994,
+          "updateAt": 1742751733115,
           "createAt": 1741354037355
         }
       },
@@ -2623,7 +2623,7 @@
       -1,
       {
         "name": 1741354048993,
-        "dataType": 1741354038466,
+        "dataType": 1742751733115,
         "options(notNull)": 1741354038466,
         "default": 1741354038466,
         "comment": 1741354038466

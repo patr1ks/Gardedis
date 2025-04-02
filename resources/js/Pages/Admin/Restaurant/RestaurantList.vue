@@ -307,14 +307,14 @@ const openRestaurantDetails = async (id) => {
                 <div v-if="selectedRestaurant?.restaurant_images?.length">
                     <p><strong>Images:</strong></p>
                     <el-image
-  v-for="image in selectedRestaurant.restaurant_images"
-  :key="image.id"
-  :src="'/' + image.image"
-  :preview-src-list="selectedRestaurant.restaurant_images.map(img => '/' + img.image)"
-  :initial-index="selectedRestaurant.restaurant_images.findIndex(i => i.id === image.id)"
-  style="width: 100px; margin-right: 10px; cursor: pointer"
-  fit="cover"
-/>
+                    v-for="image in selectedRestaurant.restaurant_images"
+                    :key="image.id"
+                    :src="'/' + image.image"
+                    :preview-src-list="selectedRestaurant.restaurant_images.map(img => '/' + img.image)"
+                    :initial-index="selectedRestaurant.restaurant_images.findIndex(i => i.id === image.id)"
+                    style="width: 100px; margin-right: 10px; cursor: pointer"
+                    fit="cover"
+                    />
                 </div>
             </div>
         </el-dialog>
