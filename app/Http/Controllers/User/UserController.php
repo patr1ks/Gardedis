@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Foundation\Application;
 use App\Models\Restaurant;
 use App\Models\Event;
+use App\Models\RestaurantForm;
 
 class UserController extends Controller
 {
@@ -34,19 +35,6 @@ class UserController extends Controller
             'phpVersion' => PHP_VERSION,
         ]);
     }
-
-    // public function event($title)
-    // {
-    //     $event = Event::where('title', $title)->with('restaurant', 'event_images')->firstOrFail();
-    
-    //     return Inertia::render('User/Event', [
-    //         'event' => $event,
-    //         'canLogin' => app('router')->has('login'),
-    //         'canRegister' => app('router')->has('register'),
-    //         'laravelVersion' => Application::VERSION,
-    //         'phpVersion' => PHP_VERSION,
-    //     ]);
-    // }
     
     public function event()
     {
@@ -62,6 +50,23 @@ class UserController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
+    }
+
+    public function storeApplication(Request $request)
+    {
+    
+        RestaurantForm::create([
+            'name' => $request->name,
+            'address' => $request->address,
+            'contacts' => $request->contacts,
+        ]);
+    
+        return redirect()->back()->with('success', 'Application submitted!');
+    }
+
+    public function application()
+    {
+        return Inertia::render('User/Application');
     }
     
 }

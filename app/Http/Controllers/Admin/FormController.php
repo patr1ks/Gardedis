@@ -22,9 +22,8 @@ class FormController extends Controller
     }
 
     public function showData($id)
-{
-    $form = RestaurantForm::with('restaurant', 'user')->findOrFail($id); // adjust relationships as needed
-    return response()->json(['form' => $form]);
-}
-
+    {
+        $form = RestaurantForm::findOrFail($id);
+        return response()->json(['form' => $form]);
+    }    
 }

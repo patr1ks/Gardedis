@@ -29,6 +29,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 Route::get('/', [UserController::class, 'index'])->name('user.home');
 Route::get('/restaurant/{title}', [UserController::class, 'restaurant'])->name('user.restaurant');
 Route::get('/events', [UserController::class, 'event'])->name('user.event');
+Route::get('/application', [UserController::class, 'application'])->name('user.application');
+Route::post('/application/store', [UserController::class, 'storeApplication'])->name('user.application.storeApplication');
 
 
 
