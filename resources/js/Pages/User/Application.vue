@@ -22,7 +22,7 @@ const submitForm = () => {
         timer: 3000,
         title: page.props.flash?.success || 'Application submitted!',
       });
-      
+
       name.value = '';
       address.value = '';
       contacts.value = '';
@@ -33,7 +33,7 @@ const submitForm = () => {
 
 <template>
   <NoHeroLayout>
-    <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-10">
+    <form @submit.prevent="submitForm" class="max-w-md mx-auto mt-24 mb-24">
 
       <!-- Name -->
       <div class="relative z-0 w-full mb-5 group">

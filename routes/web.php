@@ -78,6 +78,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::delete('/users/destroy/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     Route::get('/users/show-data/{id}', [AdminUserController::class, 'showData'])->name('admin.users.showData');
 
+    Route::get('/contacts', [CategoryController::class, 'index'])->name('admin.contacts.index');
+    Route::delete('/contacts/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.contacts.destroy');
+    Route::get('/contacts/show-data/{id}', [CategoryController::class, 'showData'])->name('admin.contacts.showData');
+
     // restaurant routes
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
     Route::post('/restaurants/store', [RestaurantController::class, 'store'])->name('admin.restaurants.store');
