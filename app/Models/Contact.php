@@ -9,4 +9,6 @@ class Contact extends Model
 {
     use HasFactory;
     protected $fillable = ['first_name', 'last_name', 'email', 'telephone', 'message'];
+
+    public const UPDATED_AT = null;
 }

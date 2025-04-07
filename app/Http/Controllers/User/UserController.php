@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use App\Models\Restaurant;
 use App\Models\Event;
 use App\Models\RestaurantForm;
+use App\Models\Contact;
 
 class UserController extends Controller
 {
@@ -67,6 +68,25 @@ class UserController extends Controller
     public function application()
     {
         return Inertia::render('User/Application');
+    }
+
+    public function storeContacts(Request $request)
+    {
+    
+        Contact::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'message' => $request->message,
+        ]);        
+    
+        return redirect()->back()->with('success', 'Message submitted!');
+    }
+
+    public function contacts()
+    {
+        return Inertia::render('User/Contacts');
     }
     
 }
