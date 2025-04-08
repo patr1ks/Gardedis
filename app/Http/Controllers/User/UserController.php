@@ -72,6 +72,13 @@ class UserController extends Controller
 
     public function storeContacts(Request $request)
     {
+        $request->validate([
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'telephone' => ['required', 'digits:8'],
+            'message' => ['required', 'string'],
+        ]);
     
         Contact::create([
             'first_name' => $request->first_name,

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email');
-            $table->string('telephone');
+            $table->string('telephone', 8);
             $table->text('message');
             $table->timestamp('created_at')->nullable();
         });
@@ -25,7 +25,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down(): void    
     {
         Schema::dropIfExists('contacts');
     }

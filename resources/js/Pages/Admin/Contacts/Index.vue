@@ -1,14 +1,14 @@
 <template>
     <AdminLayout>
-        <RestaurantList :restaurants = "restaurants"></RestaurantList>
+        <ContactsList :contacts = "contacts"></ContactsList>
     </AdminLayout>
 </template>
 
 <script setup>
 defineProps({
-    restaurants:Array
+    contacts:Array
 })
 import AdminLayout from '../Components/AdminLayout.vue';
-import RestaurantList from '../Restaurant/RestaurantList.vue';
+import ContactsList from './ContactsList.vue';
 
 </script>
