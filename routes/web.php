@@ -16,6 +16,9 @@ use App\Http\Controllers\Admin\FormController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Restaurant\RestaurantAuthController;
+use App\Http\Controllers\Restaurant\RestaurantOwnerController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -94,9 +97,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::get('/restaurants/show-data/{id}', [RestaurantController::class, 'showData'])->name('admin.restaurants.showData');
 
 });
-
-
-
 //end
+
+// restaurant admin routes
+
+Route::group(['prefix' => 'restaurant-owner', 'middleware' => 'redirectRestaurant'], function () {
+    Route::get('/login', [RestaurantAuthController::class, 'showLoginForm'])->name('restaurantOwner.login');
+    Route::post('/login', [RestaurantAuthController::class, 'login'])->name('restaurantOwner.login.post');
+    Route::post('/logout', [RestaurantAuthController::class, 'logout'])->name('restaurantOwner.logout');
+});
+
+Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->group(function() {
+    Route::get('/dashboard', [RestaurantOwnerController::class, 'index'])->name('restaurantOwner.dashboard');
+
+
+});
+
+
+
+// end
 
 require __DIR__.'/auth.php';
