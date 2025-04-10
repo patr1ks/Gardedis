@@ -33,6 +33,7 @@ use App\Http\Controllers\Restaurant\RestaurantOwnerController;
 Route::get('/', [UserController::class, 'index'])->name('user.home');
 Route::get('/restaurant/{title}', [UserController::class, 'restaurant'])->name('user.restaurant');
 Route::get('/events', [UserController::class, 'event'])->name('user.event');
+Route::get('/restaurants', [UserController::class, 'restaurants'])->name('user.restaurants');
 Route::get('/application', [UserController::class, 'application'])->name('user.application');
 Route::post('/application/store', [UserController::class, 'storeApplication'])->name('user.application.storeApplication');
 Route::get('/contacts', [UserController::class, 'contacts'])->name('user.contacts');
