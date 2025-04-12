@@ -18,7 +18,6 @@ class Restaurant extends Model
         'description',
         'published',
         'price',
-        'created_by',
         'updated_by',
         'deleted_by',
         'category_id',
@@ -40,5 +39,10 @@ class Restaurant extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class);
     }
 }

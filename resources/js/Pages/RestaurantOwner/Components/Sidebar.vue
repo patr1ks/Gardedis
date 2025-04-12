@@ -43,7 +43,7 @@ import { Link } from '@inertiajs/vue3';
         <ul class="space-y-2">
           <li>
             <Link
-              :href="route('admin.dashboard')"
+              :href="route('restaurantOwner.dashboard')"
               class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
             >
               <svg
@@ -106,16 +106,9 @@ import { Link } from '@inertiajs/vue3';
               </li>
               <li>
                 <Link
-                  :href="route('admin.users.index')"
+                  :href="route('restaurantOwner.menu.index')"
                   class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Users</Link
-                >
-              </li>
-              <li>
-                <Link
-                  :href="route('admin.categories.index')"
-                  class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Categories</Link
+                  >Menu</Link
                 >
               </li>
               <li>
@@ -123,13 +116,6 @@ import { Link } from '@inertiajs/vue3';
                   :href="route('admin.events.index')"
                   class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >Events</Link
-                >
-              </li>
-              <li>
-                <Link
-                  :href="route('admin.forms.index')"
-                  class="flex items-center p-2 pl-11 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Restaurant applications</Link
                 >
               </li>
               <li>

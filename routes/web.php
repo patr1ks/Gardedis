@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Restaurant\RestaurantAuthController;
 use App\Http\Controllers\Restaurant\RestaurantOwnerController;
+use App\Http\Controllers\Restaurant\MenuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +111,11 @@ Route::group(['prefix' => 'restaurant-owner', 'middleware' => 'redirectRestauran
 
 Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->group(function() {
     Route::get('/dashboard', [RestaurantOwnerController::class, 'index'])->name('restaurantOwner.dashboard');
+
+    Route::get('/menu', [MenuController::class, 'index'])->name('restaurantOwner.menu.index');
+    Route::post('/menu/store', [MenuController::class, 'store'])->name('restaurantOwner.menu.store');
+    Route::delete('/menu/destroy/{id}', [MenuController::class, 'destroy'])->name('restaurantOwner.menu.destroy');
+    Route::get('/menu/show-data/{id}', [MenuController::class, 'showData'])->name('restaurantOwner.menu.showData');
 
 
 });
