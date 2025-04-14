@@ -15,27 +15,32 @@ class UserController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::with('category', 'restaurant_images')->orderBy('id', 'desc')->limit(8)->get();
+        $restaurants = Restaurant::with('category', 'restaurant_images')->orderBy('id', 'desc')->limit(5)->get();
+        $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->limit(5)->get();
+    
         return Inertia::render('User/Index', [
             'restaurants' => $restaurants,
+            'events' => $events,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
     }
+    
 
-    public function restaurant($title)
+    public function restaurant($id)
     {
-        $restaurant = Restaurant::where('slug', $title)->with('category', 'restaurant_images')->first();
-        return Inertia::render('User/Restaurant', [
+        $restaurant = Restaurant::with('category', 'restaurant_images')->findOrFail($id);
+    
+        return Inertia::render('User/SelectedRestaurant/Index', [
             'restaurant' => $restaurant,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }
+    }    
 
     public function restaurants()
     {
@@ -49,15 +54,24 @@ class UserController extends Controller
         ]);
     }
     
-    public function event()
+    public function events()
     {
-        $events = Event::with('restaurant', 'event_images')
-            ->orderBy('id', 'desc')
-            ->limit(8)
-            ->get();
-    
+        $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->limit(8)->get();
         return Inertia::render('User/Event', [
-            'events' => $events, // ✅ key change here
+            'events' => $events, 
+            'canLogin' => app('router')->has('login'),
+            'canRegister' => app('router')->has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+        ]);
+    }
+
+    public function event($id)
+    {
+        $event = Event::with('restaurant', 'event_images')->findOrFail($id);
+
+        return Inertia::render('User/SelectedEvent/Index', [
+            'event' => $event,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,

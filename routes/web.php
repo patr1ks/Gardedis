@@ -32,8 +32,9 @@ use App\Http\Controllers\Restaurant\MenuController;
 */
 
 Route::get('/', [UserController::class, 'index'])->name('user.home');
-Route::get('/restaurant/{title}', [UserController::class, 'restaurant'])->name('user.restaurant');
-Route::get('/events', [UserController::class, 'event'])->name('user.event');
+Route::get('/restaurant/{id}', [UserController::class, 'restaurant'])->name('user.restaurant');
+Route::get('/events', [UserController::class, 'events'])->name('user.events');
+Route::get('/event/{id}', [UserController::class, 'event'])->name('user.event');
 Route::get('/restaurants', [UserController::class, 'restaurants'])->name('user.restaurants');
 Route::get('/application', [UserController::class, 'application'])->name('user.application');
 Route::post('/application/store', [UserController::class, 'storeApplication'])->name('user.application.storeApplication');
