@@ -1,33 +1,3 @@
-<!-- <script setup>
-import NoHeroLayout from '../Layouts/NoHeroLayout.vue';
-import { ref } from 'vue';
-import { StarIcon } from '@heroicons/vue/20/solid';
-import { RadioGroup, RadioGroupOption } from '@headlessui/vue';
-
-defineProps({
-  restaurant: Object
-})
-
-const reviews = { href: '#', average: 4, totalCount: 117 }
-
-const currentIndex = ref(0)
-
-const nextImage = () => {
-  if (currentIndex.value < props.restaurant.restaurant_images.length - 1) {
-    currentIndex.value++
-  } else {
-    currentIndex.value = 0
-  }
-}
-
-const prevImage = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value--
-  } else {
-    currentIndex.value = props.restaurant.restaurant_images.length - 1
-  }
-}
-</script> -->
 <script setup>
 import NoHeroLayout from '../Layouts/NoHeroLayout.vue';
 import { ref } from 'vue';
@@ -62,18 +32,6 @@ const prevImage = () => {
 
 <template>
   <NoHeroLayout>
-    <!-- <div class="p-4">
-    <h1 class="text-2xl font-bold">{{ restaurant.title }}</h1>
-    <p class="mt-2 text-gray-600">{{ restaurant.description }}</p>
-
-    <img
-      v-if="restaurant.restaurant_images.length > 0"
-      :src="`/${restaurant.restaurant_images[0].image}`"
-      class="mt-4 w-96"
-    />
-  </div> -->
-
-
   <div class="bg-white">
     <div class="pt-6">
       <!-- Image gallery -->
