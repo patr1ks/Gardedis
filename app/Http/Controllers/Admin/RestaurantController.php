@@ -9,15 +9,17 @@ use Illuminate\Support\Str;
 use App\Models\Restaurant;
 use App\Models\Image;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
 class RestaurantController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::with('category', 'restaurant_images')->get();
+        $restaurants = Restaurant::with('category', 'restaurant_images', 'user')->get();
         $categories = Category::get();
-        return Inertia::render('Admin/Restaurant/Index', ['restaurants' => $restaurants, 'categories' => $categories]);
+        $users = User::get();
+        return Inertia::render('Admin/Restaurant/Index', ['restaurants' => $restaurants, 'categories' => $categories, 'users' => $users]);
     }
     
     public function store(Request $request)
@@ -28,6 +30,7 @@ class RestaurantController extends Controller
         $restaurant->description = $request->description;
         $restaurant->price = $request->price;
         $restaurant->category_id = $request->category_id;
+        $restaurant->owner = $request->owner;
         $restaurant->save();
 
         //check if restaurant has images
@@ -66,6 +69,7 @@ class RestaurantController extends Controller
         $restaurant->description = $request->description;
         $restaurant->price = $request->price;
         $restaurant->category_id = $request->category_id;
+        $restaurant->owner = $request->owner;
         
         if ($request->hasFile('restaurant_images')) {
             $restaurantImages = $request->file('restaurant_images');
@@ -90,8 +94,9 @@ class RestaurantController extends Controller
 
     public function showData($id)
     {
-        $restaurant = Restaurant::with('category', 'restaurant_images')->findOrFail($id);
+        $restaurant = Restaurant::with('category', 'restaurant_images', 'user')->findOrFail($id);
         $categories = Category::get();
-        return response()->json(['restaurant' => $restaurant, 'categories' => $categories]);
+        $users = User::get();
+        return response()->json(['restaurant' => $restaurant, 'categories' => $categories, 'users' => $users]);
     }
 }

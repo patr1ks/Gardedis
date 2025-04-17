@@ -20,11 +20,9 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->boolean('published')->default(0);
             $table->decimal('price', 10, 2);
-            $table->foreignIdFor(User::class, 'created_by')->nullable();
-            $table->foreignIdFor(User::class, 'updated_by')->nullable();
+            $table->foreignIdFor(User::class, 'owner')->nullable();
             $table->foreignIdFor(Category::class, 'category_id')->nullable();
             $table->softDeletes();
-            $table->foreignIdFor(User::class, 'deleted_by')->nullable();
             $table->timestamps();
         });
     }

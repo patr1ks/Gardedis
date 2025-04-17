@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Restaurant\RestaurantAuthController;
 use App\Http\Controllers\Restaurant\RestaurantOwnerController;
 use App\Http\Controllers\Restaurant\MenuController;
+use App\Http\Controllers\Restaurant\OwnerRestaurantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +118,13 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::post('/menu/store', [MenuController::class, 'store'])->name('restaurantOwner.menu.store');
     Route::delete('/menu/destroy/{id}', [MenuController::class, 'destroy'])->name('restaurantOwner.menu.destroy');
     Route::get('/menu/show-data/{id}', [MenuController::class, 'showData'])->name('restaurantOwner.menu.showData');
+
+    Route::get('/restaurant', [OwnerRestaurantController::class, 'index'])->name('restaurantOwner.restaurant.index');
+    Route::post('/restaurant/store', [OwnerRestaurantController::class, 'store'])->name('restaurantOwner.restaurant.store');
+    Route::put('/restaurant/update/{id}', [OwnerRestaurantController::class, 'update'])->name('restaurantOwner.restaurant.update');
+    Route::delete('/restaurant/image/{id}', [OwnerRestaurantController::class, 'deleteImage'])->name('restaurantOwner.restaurant.image.delete');
+    Route::delete('/restaurant/destroy/{id}', [OwnerRestaurantController::class, 'destroy'])->name('restaurantOwner.restaurant.destroy');
+    Route::get('/restaurant/show-data/{id}', [OwnerRestaurantController::class, 'showData'])->name('restaurantOwner.restaurant.showData');
 
 
 });

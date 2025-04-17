@@ -18,8 +18,7 @@ class Restaurant extends Model
         'description',
         'published',
         'price',
-        'updated_by',
-        'deleted_by',
+        'owner',
         'category_id',
     ];
 
@@ -41,7 +40,7 @@ class Restaurant extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function createdBy()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

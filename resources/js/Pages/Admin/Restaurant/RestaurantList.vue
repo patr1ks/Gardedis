@@ -14,6 +14,7 @@ defineProps({
 
 const restaurants = usePage().props.restaurants;
 const categories = usePage().props.categories;
+const users = usePage().props.users;
 
 const isAddRestaurant = ref(false);
 const editMode = ref(false);
@@ -50,6 +51,7 @@ const price = ref('');
 const published = ref('');
 const restaurant_images = ref([]);
 const category_id = ref('');
+const owner = ref('');
 
 // Open the add modal
 const openAddModal = () => {
@@ -65,6 +67,7 @@ const AddRestaurant = async () => {
     formData.append('description', description.value);
     formData.append('price', price.value);
     formData.append('category_id', category_id.value);
+    formData.append('owner', owner.value);
 
     // Append images correctly
     for (const image of restaurantImages.value) {
@@ -104,6 +107,7 @@ const resetFormData = () => {
     description.value = '';
     price.value = '';
     category_id.value = '';
+    owner.value = '';
     restaurantImages.value = [];
     dialogImageUrl.value = '';
 }
@@ -120,6 +124,7 @@ const openEditModal = (restaurant) => {
     description.value = restaurant.description;
     price.value = restaurant.price;
     category_id.value = restaurant.category_id;
+    owner.value = restaurant.owner;
     restaurant_images.value = restaurant.restaurant_images;
 
 }
@@ -152,6 +157,7 @@ const updateRestaurant = async () => {
     formData.append('description', description.value);
     formData.append('price', price.value);
     formData.append('category_id', category_id.value);
+    formData.append('owner', owner.value);
     formData.append('_method', 'PUT');
 
     for (const image of restaurantImages.value) {
@@ -214,7 +220,8 @@ const openRestaurantDetails = async (id) => {
     try {
         const response = await axios.get(`/admin/restaurants/show-data/${id}`)
         selectedRestaurant.value = response.data.restaurant
-        categories.value = response.data.categories // optional
+        categories.value = response.data.categories
+        user.value = response.data.user
         showdialogVisible.value = true
     } catch (error) {
         console.error('Failed to load restaurant data:', error)
@@ -247,6 +254,14 @@ const openRestaurantDetails = async (id) => {
                 <label for="underline_select">Select category</label>
                 <select id="underline_select" v-model="category_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
                     <option v-for="category in categories" :key="category.id" :value="category.id" selected>{{category.name}}</option>
+                </select>
+            </div>
+
+            <!-- owner (user) select -->
+            <div class="relative z-0 w-full mb-5 group">
+                <label for="owner_select">Select owner (email)</label>
+                <select id="owner_select" v-model="owner" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                    <option v-for="user in users" :key="user.id" :value="user.id">{{ user.email }}</option>
                 </select>
             </div>
 
