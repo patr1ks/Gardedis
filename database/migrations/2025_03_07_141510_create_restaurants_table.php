@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->foreignIdFor(User::class, 'owner')->nullable();
             $table->foreignIdFor(Category::class, 'category_id')->nullable();
+            $table->longText('layout_json')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

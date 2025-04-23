@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -474.5007,
-    "scrollLeft": -531,
+    "scrollTop": -477.284,
+    "scrollLeft": -199.2427,
     "zoomLevel": 0.74,
     "show": 431,
     "database": 4,
@@ -77,6 +77,7 @@
           "Yd9-Yu0ZyV8xarbh9zA2w",
           "6yFp_PgbHepC4rXn_Y1Vf",
           "L8CLV9kXGZcf5ufHom3WW",
+          "g6Ow05SroW3LrMM5nLG7Z",
           "ikENByM-5L5WD95PbNiu4"
         ],
         "seqColumnIds": [
@@ -91,6 +92,7 @@
           "Yd9-Yu0ZyV8xarbh9zA2w",
           "6yFp_PgbHepC4rXn_Y1Vf",
           "L8CLV9kXGZcf5ufHom3WW",
+          "g6Ow05SroW3LrMM5nLG7Z",
           "ikENByM-5L5WD95PbNiu4",
           "FnPiVmzBv_Ves2GYvWXCH"
         ],
@@ -103,7 +105,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1744451347470,
+          "updateAt": 1745427606109,
           "createAt": 1741353928180
         }
       },
@@ -2532,6 +2534,26 @@
           "updateAt": 1744451069126,
           "createAt": 1744451069126
         }
+      },
+      "g6Ow05SroW3LrMM5nLG7Z": {
+        "id": "g6Ow05SroW3LrMM5nLG7Z",
+        "tableId": "3efvEKBYgQqadm4EIyvGn",
+        "name": "layout_json",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 62,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1745427633106,
+          "createAt": 1745427603015
+        }
       }
     },
     "relationshipEntities": {
@@ -2555,7 +2577,7 @@
             "ikENByM-5L5WD95PbNiu4"
           ],
           "x": 508.1452,
-          "y": 564.7656999999999,
+          "y": 576.7656999999999,
           "direction": 1
         },
         "meta": {
@@ -2574,7 +2596,7 @@
             "1H_DTaQZh7YIrKmn7BoCZ"
           ],
           "x": 881.1451999999999,
-          "y": 564.7656999999999,
+          "y": 576.7656999999999,
           "direction": 2
         },
         "end": {
@@ -2602,7 +2624,7 @@
             "1H_DTaQZh7YIrKmn7BoCZ"
           ],
           "x": 694.6451999999999,
-          "y": 724.7656999999999,
+          "y": 748.7656999999999,
           "direction": 8
         },
         "end": {
@@ -4055,6 +4077,14 @@
       1744451344583,
       1744451347469,
       {}
+    ],
+    "g6Ow05SroW3LrMM5nLG7Z": [
+      "tableColumnEntities",
+      1745427603014,
+      -1,
+      {
+        "name": 1745427633105
+      }
     ]
   }
 }

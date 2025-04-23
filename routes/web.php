@@ -20,6 +20,7 @@ use App\Http\Controllers\Restaurant\RestaurantAuthController;
 use App\Http\Controllers\Restaurant\RestaurantOwnerController;
 use App\Http\Controllers\Restaurant\MenuController;
 use App\Http\Controllers\Restaurant\OwnerRestaurantController;
+use App\Http\Controllers\Restaurant\OwnerLayoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,7 +104,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
 });
 //end
 
-// restaurant admin routes
+// restaurant owner routes
 
 Route::group(['prefix' => 'restaurant-owner', 'middleware' => 'redirectRestaurant'], function () {
     Route::get('/login', [RestaurantAuthController::class, 'showLoginForm'])->name('restaurantOwner.login');
@@ -126,7 +127,8 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::delete('/restaurant/destroy/{id}', [OwnerRestaurantController::class, 'destroy'])->name('restaurantOwner.restaurant.destroy');
     Route::get('/restaurant/show-data/{id}', [OwnerRestaurantController::class, 'showData'])->name('restaurantOwner.restaurant.showData');
 
-
+    Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
+    Route::post('/layout/save', [OwnerLayoutController::class, 'save'])->name('restaurantOwner.layout.save');
 });
 
 

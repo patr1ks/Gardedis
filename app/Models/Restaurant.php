@@ -20,6 +20,7 @@ class Restaurant extends Model
         'price',
         'owner',
         'category_id',
+        'layout_json',
     ];
 
 

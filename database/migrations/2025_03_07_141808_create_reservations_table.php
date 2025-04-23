@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('price', 10, 2);
             $table->string('status', 45);
-            $table->string('session_id', 255);
+            $table->string('table_id'); // matches JSON table ID
             $table->foreignIdFor(User::class, 'created_by')->nullable();
             $table->foreignIdFor(User::class, 'updated_by')->nullable();
             $table->timestamps();
