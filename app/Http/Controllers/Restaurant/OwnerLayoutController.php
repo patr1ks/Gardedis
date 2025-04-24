@@ -6,11 +6,23 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class OwnerLayoutController extends Controller
 {
+
+    public function index()
+    {
+        $restaurant = Auth::user()->restaurant;
+    
+        return Inertia::render('RestaurantOwner/Layout/Index', [
+            'layout' => $restaurant?->layout_json ? json_decode($restaurant->layout_json) : null,
+            'restaurantId' => $restaurant?->id,
+        ]);
+    }
+    
     // Save layout JSON for the logged-in user's restaurant
-    public function save(Request $request)
+    public function store(Request $request)
     {
         $user = Auth::user();
 
@@ -21,7 +33,7 @@ class OwnerLayoutController extends Controller
         }
 
         $restaurant->layout_json = json_encode($request->layout);
-        $restaurant->save();
+        $restaurant->store();
 
         return response()->json(['message' => 'Layout saved successfully']);
     }

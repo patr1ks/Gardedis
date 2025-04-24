@@ -5,6 +5,7 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import VueKonva from 'vue-konva'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 import ElementPlus from 'element-plus'
@@ -22,6 +23,7 @@ createInertiaApp({
             app.use(plugin)
             app.use(ZiggyVue)
             app.use(ElementPlus)
+            app.use(VueKonva)
             app.use(VueSweetalert2),
             window.Swal = app.config.globalProperties.$swal
             app.mount(el);

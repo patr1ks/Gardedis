@@ -127,8 +127,9 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::delete('/restaurant/destroy/{id}', [OwnerRestaurantController::class, 'destroy'])->name('restaurantOwner.restaurant.destroy');
     Route::get('/restaurant/show-data/{id}', [OwnerRestaurantController::class, 'showData'])->name('restaurantOwner.restaurant.showData');
 
+    Route::get('/layout', [OwnerLayoutController::class, 'index'])->name('restaurantOwner.layout.index');
     Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
-    Route::post('/layout/save', [OwnerLayoutController::class, 'save'])->name('restaurantOwner.layout.save');
+    Route::post('/layout/store', [OwnerLayoutController::class, 'store'])->name('restaurantOwner.layout.store');
 });
 
 
