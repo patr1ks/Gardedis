@@ -40,6 +40,7 @@ Route::get('/event/{id}', [UserController::class, 'event'])->name('user.event');
 Route::get('/restaurants', [UserController::class, 'restaurants'])->name('user.restaurants');
 Route::get('/application', [UserController::class, 'application'])->name('user.application');
 Route::post('/application/store', [UserController::class, 'storeApplication'])->name('user.application.storeApplication');
+Route::get('/about', [UserController::class, 'about'])->name('user.about');
 Route::get('/contacts', [UserController::class, 'contacts'])->name('user.contacts');
 Route::post('/contacts/store', [UserController::class, 'storeContacts'])->name('user.contacts.storeContacts');
 

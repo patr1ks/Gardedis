@@ -121,5 +121,10 @@ class UserController extends Controller
     {
         return Inertia::render('User/Contacts');
     }
+
+    public function about()
+    {
+        return Inertia::render('User/About');
+    }
     
 }
