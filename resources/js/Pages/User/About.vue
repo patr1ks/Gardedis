@@ -37,7 +37,7 @@ import NoHeroLayout from "./Layouts/NoHeroLayout.vue";
                         src="../../images/team.jpg"
                         alt="Restaurant"
                         class="rounded-xl shadow-lg w-full object-cover"
-                    />
+                    />  
                 </div>
             </div>
 
