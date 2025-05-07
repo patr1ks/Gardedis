@@ -1,25 +1,63 @@
 <template>
-  <div class="layout-planner">
-    <div class="toolbar">
-      <button :class="{ active: mode === 'table' }" @click="mode = 'table'">🪑 Add Table</button>
-      <button :class="{ active: mode === 'wall' }" @click="mode = 'wall'">🧱 Draw Wall</button>
-      <button :class="{ active: mode === 'delete' }" @click="mode = 'delete'">🗑️ Delete</button>
-      <button @click="clearLayout">🧹 Clear Layout</button>
+  <div class="relative w-full h-full flex flex-col items-start p-4 space-y-3">
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center gap-2">
+      <button :class="mode === 'table' ? activeBtn : defaultBtn" @click="mode = 'table'">🪑 Add Table</button>
+      <button :class="mode === 'wall' ? activeBtn : defaultBtn" @click="mode = 'wall'">🧱 Draw Wall</button>
+      <button :class="mode === 'delete' ? activeBtn : defaultBtn" @click="mode = 'delete'">🗑️ Delete</button>
+      <button :class="defaultBtn" @click="clearLayout">🧹 Clear Layout</button>
     </div>
 
-    <div class="presets">
-      <span>Presets:</span>
-      <button @click="loadPreset('square')">⬛ Square</button>
-      <button @click="loadPreset('lshape')">📐 L-Shape</button>
+    <!-- Presets -->
+    <div class="flex items-center gap-3">
+      <span class="font-semibold">Presets:</span>
+      <button :class="defaultBtn" @click="loadPreset('square')">⬛ Square</button>
+      <button :class="defaultBtn" @click="loadPreset('lshape')">📐 L-Shape</button>
     </div>
 
+    <!-- Seat Editor Panel above canvas -->
+    <div
+      v-if="editingTable"
+      class="mb-4 w-full flex justify-end pr-10"
+    >
+      <div class="bg-white border border-gray-400 rounded shadow-md p-4 z-10">
+        <h2 class="font-bold mb-2">Edit Table #{{ editingIndex + 1 }}</h2>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Seats:
+          <input
+            type="number"
+            v-model.number="seatInput"
+            min="1"
+            max="20"
+            class="ml-2 w-16 border rounded px-2 py-1"
+          />
+        </label>
+        <div class="flex gap-2 mt-2">
+          <button
+            class="px-3 py-1 text-sm border rounded bg-green-600 text-white hover:bg-green-700"
+            @click="saveSeatCount"
+          >
+            Save
+          </button>
+          <button
+            class="px-3 py-1 text-sm border rounded bg-gray-100 hover:bg-gray-200"
+            @click="editingTable = null"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
     <canvas
       ref="canvas"
       :width="canvasWidth"
       :height="canvasHeight"
-      @click="handleClick"
+      @mousedown="handleMouseDown"
       @mousemove="handleMouseMove"
-      class="canvas"
+      @mouseup="handleMouseUp"
+      class="border border-gray-300 rounded shadow"
     />
   </div>
 </template>
@@ -28,9 +66,9 @@
 import { ref, onMounted, watch } from 'vue'
 
 const canvas = ref(null)
+const ctx = ref(null)
 const canvasWidth = 900
 const canvasHeight = 600
-const ctx = ref(null)
 
 const mode = ref('table')
 const tables = ref([])
@@ -38,22 +76,30 @@ const walls = ref([])
 const isDrawingWall = ref(false)
 const tempWallStart = ref(null)
 const tempWallEnd = ref(null)
+
 const hoveredItem = ref(null)
+const draggingTable = ref(null)
+const offset = ref({ x: 0, y: 0 })
+const editingTable = ref(null)
+const editingIndex = ref(null)
+const seatInput = ref(4)
+let dragStartTime = 0
 
 const tableImage = new Image()
 tableImage.src = new URL('../../../images/table.png', import.meta.url).href
 
+const defaultBtn = 'px-4 py-1 border rounded text-sm bg-gray-100 hover:bg-gray-200'
+const activeBtn = 'px-4 py-1 border rounded text-sm bg-green-600 text-white border-green-600'
+
 const drawScene = () => {
   if (!ctx.value) return
-
   ctx.value.clearRect(0, 0, canvasWidth, canvasHeight)
   ctx.value.lineCap = 'round'
   ctx.value.lineJoin = 'round'
 
-  // Draw walls
   walls.value.forEach((w, index) => {
-    ctx.value.strokeStyle =
-      hoveredItem.value?.type === 'wall' && hoveredItem.value?.index === index ? 'red' : '#333'
+    const highlight = mode.value === 'delete' && hoveredItem.value?.type === 'wall' && hoveredItem.value.index === index
+    ctx.value.strokeStyle = highlight ? 'red' : '#333'
     ctx.value.lineWidth = 4
     ctx.value.beginPath()
     ctx.value.moveTo(w.x1, w.y1)
@@ -61,7 +107,6 @@ const drawScene = () => {
     ctx.value.stroke()
   })
 
-  // Live wall preview
   if (isDrawingWall.value && tempWallStart.value && tempWallEnd.value) {
     ctx.value.strokeStyle = '#888'
     ctx.value.setLineDash([6, 4])
@@ -72,10 +117,9 @@ const drawScene = () => {
     ctx.value.setLineDash([])
   }
 
-  // Draw tables
   tables.value.forEach((t, index) => {
     const size = 60
-    const isHovered = hoveredItem.value?.type === 'table' && hoveredItem.value?.index === index
+    const isHovered = mode.value === 'delete' && hoveredItem.value?.type === 'table' && hoveredItem.value.index === index
 
     ctx.value.drawImage(tableImage, t.x - size / 2, t.y - size / 2, size, size)
 
@@ -84,36 +128,66 @@ const drawScene = () => {
       ctx.value.lineWidth = 2
       ctx.value.strokeRect(t.x - size / 2, t.y - size / 2, size, size)
     }
+
+    ctx.value.fillStyle = 'black'
+    ctx.value.font = '14px sans-serif'
+    ctx.value.textAlign = 'center'
+    ctx.value.fillText(`Table ${index + 1}`, t.x, t.y - size / 2 - 10)
+    ctx.value.fillText(`${t.seats} seats`, t.x, t.y + size / 2 + 15)
   })
 }
 
-const getMousePos = (event) => {
+const getMousePos = (e) => {
   const rect = canvas.value.getBoundingClientRect()
-  return {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
-  }
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
 }
 
 const isPointOnWall = (x, y, wall) => {
   const { x1, y1, x2, y2 } = wall
-  const distToLine =
+  const dist =
     Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / Math.hypot(y2 - y1, x2 - x1)
-  return (
-    distToLine < 6 &&
+  return dist < 6 &&
     Math.min(x1, x2) - 6 <= x &&
     x <= Math.max(x1, x2) + 6 &&
     Math.min(y1, y2) - 6 <= y &&
     y <= Math.max(y1, y2) + 6
-  )
 }
 
-const handleClick = (event) => {
-  const { x, y } = getMousePos(event)
+const handleMouseDown = (e) => {
+  const { x, y } = getMousePos(e)
+  dragStartTime = performance.now()
+
+  if (mode.value === 'delete') {
+    for (let i = 0; i < tables.value.length; i++) {
+      if (Math.hypot(x - tables.value[i].x, y - tables.value[i].y) < 30) {
+        tables.value.splice(i, 1)
+        drawScene()
+        return
+      }
+    }
+    for (let i = 0; i < walls.value.length; i++) {
+      if (isPointOnWall(x, y, walls.value[i])) {
+        walls.value.splice(i, 1)
+        drawScene()
+        return
+      }
+    }
+  }
 
   if (mode.value === 'table') {
+    for (let i = 0; i < tables.value.length; i++) {
+      const t = tables.value[i]
+      if (Math.hypot(x - t.x, y - t.y) < 30) {
+        draggingTable.value = t
+        offset.value = { x: x - t.x, y: y - t.y }
+        return
+      }
+    }
     tables.value.push({ x, y, seats: 4 })
-  } else if (mode.value === 'wall') {
+    drawScene()
+  }
+
+  if (mode.value === 'wall') {
     if (!isDrawingWall.value) {
       tempWallStart.value = { x, y }
       isDrawingWall.value = true
@@ -128,38 +202,50 @@ const handleClick = (event) => {
       tempWallEnd.value = null
       isDrawingWall.value = false
     }
-  } else if (mode.value === 'delete') {
-    if (hoveredItem.value?.type === 'table') {
-      tables.value.splice(hoveredItem.value.index, 1)
-    } else if (hoveredItem.value?.type === 'wall') {
-      walls.value.splice(hoveredItem.value.index, 1)
-    }
+    drawScene()
   }
-
-  drawScene()
 }
 
-const handleMouseMove = (event) => {
-  const { x, y } = getMousePos(event)
+const handleMouseUp = () => {
+  if (draggingTable.value) {
+    const duration = performance.now() - dragStartTime
+    const clicked = duration < 200
+    const index = tables.value.findIndex(t => t === draggingTable.value)
+    if (clicked) {
+      editingTable.value = draggingTable.value
+      editingIndex.value = index
+      seatInput.value = editingTable.value.seats
+    }
+    draggingTable.value = null
+  }
+}
+
+const handleMouseMove = (e) => {
+  const { x, y } = getMousePos(e)
+
+  if (draggingTable.value) {
+    draggingTable.value.x = x - offset.value.x
+    draggingTable.value.y = y - offset.value.y
+    drawScene()
+    return
+  }
+
   hoveredItem.value = null
 
   if (mode.value === 'delete') {
     for (let i = 0; i < tables.value.length; i++) {
       const t = tables.value[i]
-      const dx = x - t.x
-      const dy = y - t.y
-      if (Math.sqrt(dx * dx + dy * dy) < 30) {
+      if (Math.hypot(x - t.x, y - t.y) < 30) {
         hoveredItem.value = { type: 'table', index: i }
-        break
+        drawScene()
+        return
       }
     }
-
-    if (!hoveredItem.value) {
-      for (let i = 0; i < walls.value.length; i++) {
-        if (isPointOnWall(x, y, walls.value[i])) {
-          hoveredItem.value = { type: 'wall', index: i }
-          break
-        }
+    for (let i = 0; i < walls.value.length; i++) {
+      if (isPointOnWall(x, y, walls.value[i])) {
+        hoveredItem.value = { type: 'wall', index: i }
+        drawScene()
+        return
       }
     }
   }
@@ -168,8 +254,7 @@ const handleMouseMove = (event) => {
     const dx = x - tempWallStart.value.x
     const dy = y - tempWallStart.value.y
     const angle = Math.atan2(dy, dx)
-    const snapAngles = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI,
-                        -(Math.PI / 4), -(Math.PI / 2), -(3 * Math.PI) / 4]
+    const snapAngles = [0, Math.PI / 2, Math.PI, -Math.PI / 2]
 
     let closest = snapAngles[0]
     let minDiff = Math.abs(angle - closest)
@@ -182,40 +267,12 @@ const handleMouseMove = (event) => {
     }
 
     const length = Math.hypot(dx, dy)
-    const snappedX = tempWallStart.value.x + Math.cos(closest) * length
-    const snappedY = tempWallStart.value.y + Math.sin(closest) * length
-    tempWallEnd.value = { x: snappedX, y: snappedY }
+    tempWallEnd.value = {
+      x: tempWallStart.value.x + Math.cos(closest) * length,
+      y: tempWallStart.value.y + Math.sin(closest) * length
+    }
+    drawScene()
   }
-
-  drawScene()
-}
-
-const loadPreset = (type) => {
-  walls.value = []
-
-  if (type === 'square') {
-    const size = 400
-    const offset = 100
-    walls.value = [
-      { x1: offset, y1: offset, x2: offset + size, y2: offset },
-      { x1: offset + size, y1: offset, x2: offset + size, y2: offset + size },
-      { x1: offset + size, y1: offset + size, x2: offset, y2: offset + size },
-      { x1: offset, y1: offset + size, x2: offset, y2: offset }
-    ]
-  }
-
-  if (type === 'lshape') {
-    walls.value = [
-      { x1: 100, y1: 100, x2: 600, y2: 100 },
-      { x1: 600, y1: 100, x2: 600, y2: 400 },
-      { x1: 600, y1: 400, x2: 300, y2: 400 },
-      { x1: 300, y1: 400, x2: 300, y2: 250 },
-      { x1: 300, y1: 250, x2: 100, y2: 250 },
-      { x1: 100, y1: 250, x2: 100, y2: 100 }
-    ]
-  }
-
-  drawScene()
 }
 
 const clearLayout = () => {
@@ -224,7 +281,40 @@ const clearLayout = () => {
   isDrawingWall.value = false
   tempWallStart.value = null
   tempWallEnd.value = null
-  hoveredItem.value = null
+  editingTable.value = null
+  drawScene()
+}
+
+const saveSeatCount = () => {
+  if (editingTable.value) {
+    editingTable.value.seats = seatInput.value
+    editingTable.value = null
+    editingIndex.value = null
+    drawScene()
+  }
+}
+
+const loadPreset = (type) => {
+  walls.value = []
+  if (type === 'square') {
+    const size = 400, offset = 100
+    walls.value = [
+      { x1: offset, y1: offset, x2: offset + size, y2: offset },
+      { x1: offset + size, y1: offset, x2: offset + size, y2: offset + size },
+      { x1: offset + size, y1: offset + size, x2: offset, y2: offset + size },
+      { x1: offset, y1: offset + size, x2: offset, y2: offset }
+    ]
+  }
+  if (type === 'lshape') {
+    walls.value = [
+      { x1: 100, y1: 100, x2: 600, y2: 100 },
+      { x1: 600, y1: 100, x2: 600, y2: 300 },
+      { x1: 600, y1: 300, x2: 300, y2: 300 },
+      { x1: 300, y1: 300, x2: 300, y2: 500 },
+      { x1: 300, y1: 500, x2: 100, y2: 500 },
+      { x1: 100, y1: 500, x2: 100, y2: 100 }
+    ]
+  }
   drawScene()
 }
 
@@ -232,69 +322,5 @@ onMounted(() => {
   ctx.value = canvas.value.getContext('2d')
   tableImage.onload = () => drawScene()
 })
-
 watch([tables, walls], drawScene)
 </script>
-
-<style scoped>
-.layout-planner {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.toolbar {
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  display: flex;
-}
-
-button {
-  padding: 8px 14px;
-  margin-right: 10px;
-  margin-bottom: 6px;
-  background-color: #f4f4f4;
-  border: 1px solid #aaa;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background-color: #e0e0e0;
-}
-
-button.active {
-  background-color: #4caf50;
-  color: white;
-  border-color: #4caf50;
-}
-
-.presets {
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.presets span {
-  font-weight: bold;
-}
-.presets button {
-  padding: 6px 10px;
-  font-size: 13px;
-  background-color: #eee;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.presets button:hover {
-  background-color: #ddd;
-}
-
-.canvas {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-</style>
