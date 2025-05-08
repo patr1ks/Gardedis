@@ -129,8 +129,10 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::get('/restaurant/show-data/{id}', [OwnerRestaurantController::class, 'showData'])->name('restaurantOwner.restaurant.showData');
 
     Route::get('/layout', [OwnerLayoutController::class, 'index'])->name('restaurantOwner.layout.index');
+    // Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
     Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
     Route::post('/layout/store', [OwnerLayoutController::class, 'store'])->name('restaurantOwner.layout.store');
+    Route::get('/layout-json', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.json');
 });
 
 

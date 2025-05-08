@@ -6,6 +6,7 @@
       <button :class="mode === 'wall' ? activeBtn : defaultBtn" @click="mode = 'wall'">🧱 Draw Wall</button>
       <button :class="mode === 'delete' ? activeBtn : defaultBtn" @click="mode = 'delete'">🗑️ Delete</button>
       <button :class="defaultBtn" @click="clearLayout">🧹 Clear Layout</button>
+      <button :class="defaultBtn" @click="saveLayout">💾 Save Layout</button>
     </div>
 
     <!-- Presets -->
@@ -15,12 +16,9 @@
       <button :class="defaultBtn" @click="loadPreset('lshape')">📐 L-Shape</button>
     </div>
 
-    <!-- Seat Editor Panel above canvas -->
-    <div
-      v-if="editingTable"
-      class="mb-4 w-full flex justify-end pr-10"
-    >
-      <div class="bg-white border border-gray-400 rounded shadow-md p-4 z-10">
+    <!-- Seat Editor Panel -->
+    <div v-if="editingTable" class="absolute top-4 right-6 z-20">
+      <div class="bg-white border border-gray-400 rounded shadow-md p-4">
         <h2 class="font-bold mb-2">Edit Table #{{ editingIndex + 1 }}</h2>
         <label class="block text-sm font-medium text-gray-700 mb-2">
           Seats:
@@ -33,18 +31,8 @@
           />
         </label>
         <div class="flex gap-2 mt-2">
-          <button
-            class="px-3 py-1 text-sm border rounded bg-green-600 text-white hover:bg-green-700"
-            @click="saveSeatCount"
-          >
-            Save
-          </button>
-          <button
-            class="px-3 py-1 text-sm border rounded bg-gray-100 hover:bg-gray-200"
-            @click="editingTable = null"
-          >
-            Close
-          </button>
+          <button class="px-3 py-1 text-sm border rounded bg-blue-700 text-white hover:bg-blue-800" @click="saveSeatCount">Save</button>
+          <button class="px-3 py-1 text-sm border rounded bg-gray-100 hover:bg-gray-200" @click="editingTable = null">Close</button>
         </div>
       </div>
     </div>
@@ -64,6 +52,9 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { router } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
+
 
 const canvas = ref(null)
 const ctx = ref(null)
@@ -76,7 +67,6 @@ const walls = ref([])
 const isDrawingWall = ref(false)
 const tempWallStart = ref(null)
 const tempWallEnd = ref(null)
-
 const hoveredItem = ref(null)
 const draggingTable = ref(null)
 const offset = ref({ x: 0, y: 0 })
@@ -88,8 +78,8 @@ let dragStartTime = 0
 const tableImage = new Image()
 tableImage.src = new URL('../../../images/table.png', import.meta.url).href
 
-const defaultBtn = 'px-4 py-1 border rounded text-sm bg-gray-100 hover:bg-gray-200'
-const activeBtn = 'px-4 py-1 border rounded text-sm bg-green-600 text-white border-green-600'
+const defaultBtn = 'px-4 py-1 border rounded text-sm bg-blue-600 text-white hover:bg-blue-700'
+const activeBtn = 'px-4 py-1 border rounded text-sm bg-blue-700 text-white border-blue-800'
 
 const drawScene = () => {
   if (!ctx.value) return
@@ -254,7 +244,17 @@ const handleMouseMove = (e) => {
     const dx = x - tempWallStart.value.x
     const dy = y - tempWallStart.value.y
     const angle = Math.atan2(dy, dx)
-    const snapAngles = [0, Math.PI / 2, Math.PI, -Math.PI / 2]
+    const snapAngles = [
+      0,
+      Math.PI / 4,            // 45°
+      Math.PI / 2,            // 90°
+      (3 * Math.PI) / 4,      // 135°
+      Math.PI,                // 180°
+      -(Math.PI / 4),         // -45°
+      -(Math.PI / 2),         // -90°
+      -(3 * Math.PI) / 4      // -135°
+    ]
+
 
     let closest = snapAngles[0]
     let minDiff = Math.abs(angle - closest)
@@ -294,33 +294,94 @@ const saveSeatCount = () => {
   }
 }
 
+const saveLayout = async () => {
+  try {
+    await router.post('/restaurant-owner/layout/store', {
+      layout: {
+        tables: tables.value,
+        walls: walls.value,
+      }
+    }, {
+      onSuccess: (page) => {
+        Swal.fire({
+          toast: true,
+          icon: 'success',
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 2000,
+          title: page.props.flash?.success || 'Layout saved successfully!',
+        });
+      },
+      onError: (errors) => {
+        Swal.fire({
+          toast: true,
+          icon: 'error',
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 2000,
+          title: 'Failed to save layout!',
+        });
+      },
+    });
+  } catch (err) {
+    Swal.fire({
+      toast: true,
+      icon: 'error',
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2000,
+      title: 'Unexpected error during save!',
+    });
+  }
+};
+
+const loadLayout = async () => {
+  const res = await fetch('/restaurant-owner/layout-json', {
+    headers: { Accept: 'application/json' },
+    credentials: 'include'
+  });
+  const json = await res.json();
+  if (json) {
+    tables.value = json.tables || []
+    walls.value = json.walls || []
+    drawScene()
+  }
+}
+
 const loadPreset = (type) => {
   walls.value = []
   if (type === 'square') {
-    const size = 400, offset = 100
+    const size = 500
+    const offsetX = (canvasWidth - size) / 2
+    const offsetY = (canvasHeight - size) / 2
     walls.value = [
-      { x1: offset, y1: offset, x2: offset + size, y2: offset },
-      { x1: offset + size, y1: offset, x2: offset + size, y2: offset + size },
-      { x1: offset + size, y1: offset + size, x2: offset, y2: offset + size },
-      { x1: offset, y1: offset + size, x2: offset, y2: offset }
+      { x1: offsetX, y1: offsetY, x2: offsetX + size, y2: offsetY },
+      { x1: offsetX + size, y1: offsetY, x2: offsetX + size, y2: offsetY + size },
+      { x1: offsetX + size, y1: offsetY + size, x2: offsetX, y2: offsetY + size },
+      { x1: offsetX, y1: offsetY + size, x2: offsetX, y2: offsetY }
     ]
   }
   if (type === 'lshape') {
-    walls.value = [
-      { x1: 100, y1: 100, x2: 600, y2: 100 },
-      { x1: 600, y1: 100, x2: 600, y2: 300 },
-      { x1: 600, y1: 300, x2: 300, y2: 300 },
-      { x1: 300, y1: 300, x2: 300, y2: 500 },
-      { x1: 300, y1: 500, x2: 100, y2: 500 },
-      { x1: 100, y1: 500, x2: 100, y2: 100 }
-    ]
-  }
+  const offsetX = (canvasWidth - 500) / 2
+  const offsetY = (canvasHeight - 400) / 2
+
+  walls.value = [
+    { x1: offsetX, y1: offsetY, x2: offsetX + 500, y2: offsetY },             // top
+    { x1: offsetX + 500, y1: offsetY, x2: offsetX + 500, y2: offsetY + 200 }, // right vertical
+    { x1: offsetX + 500, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 200 }, // inner top-right
+    { x1: offsetX + 250, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 400 }, // inner vertical down
+    { x1: offsetX + 250, y1: offsetY + 400, x2: offsetX, y2: offsetY + 400 },       // ✅ longer bottom wall
+    { x1: offsetX, y1: offsetY + 400, x2: offsetX, y2: offsetY }              // left side
+  ];
+}
   drawScene()
 }
 
 onMounted(() => {
   ctx.value = canvas.value.getContext('2d')
-  tableImage.onload = () => drawScene()
+  tableImage.onload = () => {
+    loadLayout()
+  }
 })
 watch([tables, walls], drawScene)
 </script>

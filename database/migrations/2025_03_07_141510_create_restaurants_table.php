@@ -1,38 +1,50 @@
 <?php
 
-use App\Models\Category;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use App\Models\User;
+namespace App\Models;
 
-return new class extends Migration
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+
+class Restaurant extends Model
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    use HasSlug, HasFactory;
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'published',
+        'price',
+        'owner',
+        'category_id',
+        'layout_json',
+    ];
+
+    protected $casts = [
+        'layout_json' => 'array',
+    ];
+
+    public function getSlugOptions(): SlugOptions
     {
-        Schema::create('restaurants', function (Blueprint $table) {
-            $table->id();
-            $table->string('title', 200);
-            $table->string('slug', 400);
-            $table->longText('description')->nullable();
-            $table->boolean('published')->default(0);
-            $table->decimal('price', 10, 2);
-            $table->foreignIdFor(User::class, 'owner')->nullable();
-            $table->foreignIdFor(Category::class, 'category_id')->nullable();
-            $table->longText('layout_json')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function restaurant_images()
     {
-        Schema::dropIfExists('restaurants');
+        return $this->hasMany(Image::class);
     }
-};
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'owner');
+    }
+}

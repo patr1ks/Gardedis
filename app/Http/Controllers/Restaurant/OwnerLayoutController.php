@@ -10,39 +10,49 @@ use Inertia\Inertia;
 
 class OwnerLayoutController extends Controller
 {
-
+    // Render Inertia page with layout data
     public function index()
     {
         $restaurant = Auth::user()->restaurant;
-    
+
         return Inertia::render('RestaurantOwner/Layout/Index', [
-            'layout' => $restaurant?->layout_json ? json_decode($restaurant->layout_json) : null,
+            'layout' => $restaurant?->layout_json,
             'restaurantId' => $restaurant?->id,
         ]);
     }
-    
+
     // Save layout JSON for the logged-in user's restaurant
     public function store(Request $request)
     {
         $user = Auth::user();
-
         $restaurant = $user->restaurant;
-
+    
         if (!$restaurant) {
-            return response()->json(['error' => 'No restaurant found for user'], 404);
+            return redirect()->back()->withErrors(['layout' => 'No restaurant found.']);
         }
-
+    
         $restaurant->layout_json = json_encode($request->layout);
-        $restaurant->store();
-
-        return response()->json(['message' => 'Layout saved successfully']);
+        $restaurant->save();
+    
+        // If it's an XHR or fetch request (like from JavaScript), return JSON
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Layout saved successfully']);
+        }
+    
+        // Otherwise redirect back with flash message for Inertia
+        return redirect()->back()->with('success', 'Layout saved successfully!');
     }
+    
 
     // Load layout JSON by restaurant ID
-    public function show($id)
+    public function show()
     {
-        $restaurant = Restaurant::findOrFail($id);
-
+        $restaurant = Auth::user()->restaurant;
+    
+        if (!$restaurant || !$restaurant->layout_json) {
+            return response()->json(['tables' => [], 'walls' => []]);
+        }
+    
         return response()->json(json_decode($restaurant->layout_json, true));
-    }
+    }    
 }
