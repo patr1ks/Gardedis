@@ -55,7 +55,6 @@ import { ref, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
-
 const canvas = ref(null)
 const ctx = ref(null)
 const canvasWidth = 900
@@ -76,7 +75,9 @@ const seatInput = ref(4)
 let dragStartTime = 0
 
 const tableImage = new Image()
-tableImage.src = new URL('../../../images/table.png', import.meta.url).href
+tableImage.src =
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(`<svg version="1.1" id="real_x5F_estate_1_" xmlns="http://www.w3.org/2000/svg" x="0" y="0" viewBox="0 0 128 128" xml:space="preserve"><style>.st0{display:none}.st1{display:inline}.st2{fill:#0f0f0f}</style><g id="table_x5F_chair_1_"><path class="st2" d="M101.2 47.5H28.9v10.3h8.3v35.1h4.1V57.8h45.4v35.1h4.1V57.8h10.3V47.5zm-95-12.4H0v57.8h6.2V80.5h19.4l1.3 12.4H31V66.1H6.2v-31zm18.5 37.2.6 6.2H6.2v-6.2h18.5zm97.1-37.2v31H97v26.8h4.1l1.3-12.4h19.4v12.4h6.2V35.1h-6.2zm0 43.4h-19.2l.6-6.2h18.5v6.2z" id="icon_14_"/></g></svg>`);
 
 const defaultBtn = 'px-4 py-1 border rounded text-sm bg-blue-600 text-white hover:bg-blue-700'
 const activeBtn = 'px-4 py-1 border rounded text-sm bg-blue-700 text-white border-blue-800'
@@ -246,15 +247,14 @@ const handleMouseMove = (e) => {
     const angle = Math.atan2(dy, dx)
     const snapAngles = [
       0,
-      Math.PI / 4,            // 45°
-      Math.PI / 2,            // 90°
-      (3 * Math.PI) / 4,      // 135°
-      Math.PI,                // 180°
-      -(Math.PI / 4),         // -45°
-      -(Math.PI / 2),         // -90°
-      -(3 * Math.PI) / 4      // -135°
+      Math.PI / 4,
+      Math.PI / 2,
+      (3 * Math.PI) / 4,
+      Math.PI,
+      -(Math.PI / 4),
+      -(Math.PI / 2),
+      -(3 * Math.PI) / 4
     ]
-
 
     let closest = snapAngles[0]
     let minDiff = Math.abs(angle - closest)
@@ -312,7 +312,7 @@ const saveLayout = async () => {
           title: page.props.flash?.success || 'Layout saved successfully!',
         });
       },
-      onError: (errors) => {
+      onError: () => {
         Swal.fire({
           toast: true,
           icon: 'error',
@@ -323,7 +323,7 @@ const saveLayout = async () => {
         });
       },
     });
-  } catch (err) {
+  } catch {
     Swal.fire({
       toast: true,
       icon: 'error',
@@ -362,18 +362,17 @@ const loadPreset = (type) => {
     ]
   }
   if (type === 'lshape') {
-  const offsetX = (canvasWidth - 500) / 2
-  const offsetY = (canvasHeight - 400) / 2
-
-  walls.value = [
-    { x1: offsetX, y1: offsetY, x2: offsetX + 500, y2: offsetY },             // top
-    { x1: offsetX + 500, y1: offsetY, x2: offsetX + 500, y2: offsetY + 200 }, // right vertical
-    { x1: offsetX + 500, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 200 }, // inner top-right
-    { x1: offsetX + 250, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 400 }, // inner vertical down
-    { x1: offsetX + 250, y1: offsetY + 400, x2: offsetX, y2: offsetY + 400 },       // ✅ longer bottom wall
-    { x1: offsetX, y1: offsetY + 400, x2: offsetX, y2: offsetY }              // left side
-  ];
-}
+    const offsetX = (canvasWidth - 500) / 2
+    const offsetY = (canvasHeight - 400) / 2
+    walls.value = [
+      { x1: offsetX, y1: offsetY, x2: offsetX + 500, y2: offsetY },
+      { x1: offsetX + 500, y1: offsetY, x2: offsetX + 500, y2: offsetY + 200 },
+      { x1: offsetX + 500, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 200 },
+      { x1: offsetX + 250, y1: offsetY + 200, x2: offsetX + 250, y2: offsetY + 400 },
+      { x1: offsetX + 250, y1: offsetY + 400, x2: offsetX, y2: offsetY + 400 },
+      { x1: offsetX, y1: offsetY + 400, x2: offsetX, y2: offsetY }
+    ]
+  }
   drawScene()
 }
 

@@ -35,12 +35,13 @@ class UserController extends Controller
     
         return Inertia::render('User/SelectedRestaurant/Index', [
             'restaurant' => $restaurant,
+            'layout' => $restaurant->layout_json ? json_decode($restaurant->layout_json) : null,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }    
+    }      
 
     public function restaurants()
     {

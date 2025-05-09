@@ -1,16 +1,92 @@
 <script setup>
-import NoHeroLayout from '../Layouts/NoHeroLayout.vue';
-import { ref } from 'vue';
-import { StarIcon } from '@heroicons/vue/20/solid';
-import { RadioGroup, RadioGroupOption } from '@headlessui/vue';
+import NoHeroLayout from '../Layouts/NoHeroLayout.vue'
+import { ref, onMounted } from 'vue'
 
 // Props
 const props = defineProps({
-  restaurant: Object
+  restaurant: Object,
+  layout: Object
 })
 
-// Correct way — no need to write props.restaurant
 const currentIndex = ref(0)
+const layoutCanvas = ref(null)
+const hoveredTableIndex = ref(null)
+const selectedTableIndex = ref(null)
+
+const tableImage = new Image()
+tableImage.src =
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path fill="black" d="M101.2 47.5H28.9v10.3h8.3v35.1h4.1V57.8h45.4v35.1h4.1V57.8h10.3V47.5zm-95-12.4H0v57.8h6.2V80.5h19.4l1.3 12.4H31V66.1H6.2v-31zm18.5 37.2.6 6.2H6.2v-6.2h18.5zm97.1-37.2v31H97v26.8h4.1l1.3-12.4h19.4v12.4h6.2V35.1h-6.2zm0 43.4h-19.2l.6-6.2h18.5v6.2z"/></svg>`)
+
+const getMousePos = (event) => {
+  const rect = layoutCanvas.value.getBoundingClientRect()
+  return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
+  }
+}
+
+const drawLayout = () => {
+  const ctx = layoutCanvas.value.getContext('2d')
+  ctx.clearRect(0, 0, layoutCanvas.value.width, layoutCanvas.value.height)
+  ctx.lineWidth = 3
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+
+  // Draw walls
+  for (const wall of props.layout.walls || []) {
+    ctx.strokeStyle = '#333'
+    ctx.beginPath()
+    ctx.moveTo(wall.x1, wall.y1)
+    ctx.lineTo(wall.x2, wall.y2)
+    ctx.stroke()
+  }
+
+  // Draw tables (using only text color changes with state)
+  for (const [i, table] of (props.layout.tables || []).entries()) {
+    const size = 60
+    ctx.drawImage(tableImage, table.x - size / 2, table.y - size / 2, size, size)
+
+    // Determine text color based on state
+    let textColor = 'black'
+    if (selectedTableIndex.value === i) {
+      textColor = '#065F46'  // dark green when selected
+    } else if (hoveredTableIndex.value === i) {
+      textColor = '#00A86B'  // light green when hovered
+    }
+
+    ctx.fillStyle = textColor
+    ctx.font = '14px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(`Table ${i + 1}`, table.x, table.y - size / 2 - 10)
+    ctx.fillText(`${table.seats} seats`, table.x, table.y + size / 2 + 15)
+  }
+}
+
+const handleMouseMove = (event) => {
+  const { x, y } = getMousePos(event)
+  hoveredTableIndex.value = null
+
+  for (const [i, table] of props.layout.tables.entries()) {
+    if (Math.hypot(table.x - x, table.y - y) < 30) {
+      hoveredTableIndex.value = i
+      break
+    }
+  }
+  drawLayout()
+}
+
+const handleClick = (event) => {
+  const { x, y } = getMousePos(event)
+  for (const [i, table] of props.layout.tables.entries()) {
+    if (Math.hypot(table.x - x, table.y - y) < 30) {
+      // Toggle selection: if clicked again, deselect
+      selectedTableIndex.value = selectedTableIndex.value === i ? null : i
+      drawLayout()
+      return
+    }
+  }
+}
 
 const nextImage = () => {
   if (currentIndex.value < props.restaurant.restaurant_images.length - 1) {
@@ -27,172 +103,94 @@ const prevImage = () => {
     currentIndex.value = props.restaurant.restaurant_images.length - 1
   }
 }
-</script>
 
+onMounted(() => {
+  if (!layoutCanvas.value || !props.layout) return
+
+  layoutCanvas.value.addEventListener('mousemove', handleMouseMove)
+  layoutCanvas.value.addEventListener('click', handleClick)
+
+  tableImage.onload = drawLayout
+  if (tableImage.complete) drawLayout()
+})
+</script>
 
 <template>
   <NoHeroLayout>
-  <div class="bg-white">
-    <div class="pt-6">
-      <!-- Image gallery -->
-      <div 
-    v-if="restaurant && restaurant.restaurant_images.length > 0" 
-    class="relative w-full"
-  >
-    <!-- Carousel wrapper -->
-    <div class="relative h-56 overflow-hidden rounded-lg md:h-96">
-      <div
-        v-for="(image, index) in restaurant.restaurant_images"
-        :key="index"
-        :class="[
-          'absolute inset-0 transition-opacity duration-700 ease-in-out',
-          index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-        ]"
-      >
-        <img
-          :src="`/${image.image}`"
-          class="w-full h-full object-contain"
-          alt="Restaurant Image"
-        />
-      </div>
-    </div>
-
-    <!-- Controls -->
-    <div class="flex justify-center items-center pt-4">
-      <button 
-        type="button" 
-        @click="prevImage"
-        class="me-4 h-full cursor-pointer group focus:outline-none"
-      >
-        <svg class="w-5 h-5 text-gray-400 hover:text-gray-900" fill="none" viewBox="0 0 14 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-        </svg>
-        <span class="sr-only">Previous</span>
-      </button>
-
-      <button 
-        type="button" 
-        @click="nextImage"
-        class="h-full cursor-pointer group focus:outline-none"
-      >
-        <svg class="w-5 h-5 text-gray-400 hover:text-gray-900" fill="none" viewBox="0 0 14 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-        </svg>
-        <span class="sr-only">Next</span>
-      </button>
-    </div>
-  </div>
-
-  <div v-else>
-    <p class="text-center text-gray-500">No images available for this restaurant.</p>
-  </div>
-
-  <div v-else>
-    <p class="text-center text-gray-500">No images available for this restaurant.</p>
-  </div>
-
-
-
-
-      <!-- Product info -->
-      <div class="mx-auto max-w-2xl px-4 pt-10 pb-16 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto_auto_1fr] lg:gap-x-8 lg:px-8 lg:pt-16 lg:pb-24">
-        <div class="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{{ restaurant.title }}</h1>
-        </div>
-
-        <!-- Options -->
-        <div class="mt-4 lg:row-span-3 lg:mt-0">
-          <h2 class="sr-only">Restaurant information</h2>
-          <p class="text-3xl tracking-tight text-gray-900">{{ restaurant.price }} €</p>
-
-          <!-- Reviews -->
-          <!-- <div class="mt-6">
-            <h3 class="sr-only">Reviews</h3>
-            <div class="flex items-center">
-              <div class="flex items-center">
-                <StarIcon v-for="rating in [0, 1, 2, 3, 4]" :key="rating" :class="[reviews.average > rating ? 'text-gray-900' : 'text-gray-200', 'size-5 shrink-0']" aria-hidden="true" />
-              </div>
-              <p class="sr-only">{{ reviews.average }} out of 5 stars</p>
-              <a :href="reviews.href" class="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">{{ reviews.totalCount }} reviews</a>
+    <div class="bg-white">
+      <div class="pt-6">
+        <!-- Image Gallery -->
+        <div v-if="restaurant.restaurant_images.length" class="w-full text-center">
+          <div class="relative h-56 md:h-96">
+            <div
+              v-for="(image, index) in restaurant.restaurant_images"
+              :key="index"
+              :class="[
+                'absolute inset-0 transition-opacity duration-700',
+                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              ]"
+            >
+              <img :src="`/${image.image}`" class="w-full h-full object-contain" alt="Restaurant Image" />
             </div>
-          </div> -->
+          </div>
+          <div class="flex justify-center pt-4 space-x-3">
+  <button
+    @click="prevImage"
+    class="p-2 rounded-full border border-gray-300 hover:bg-blue-600 transition"
+    aria-label="Previous"
+  >
+    <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <button
+    @click="nextImage"
+    class="p-2 rounded-full border border-gray-300 hover:bg-blue-600 transition"
+    aria-label="Next"
+  >
+    <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+</div>
 
-          <form class="mt-10">
-            <!-- Colors -->
-            <!-- <div>
-              <h3 class="text-sm font-medium text-gray-900">Color</h3>
-
-              <fieldset aria-label="Choose a color" class="mt-4">
-                <RadioGroup v-model="selectedColor" class="flex items-center gap-x-3">
-                  <RadioGroupOption as="template" v-for="color in product.colors" :key="color.name" :value="color" :aria-label="color.name" v-slot="{ active, checked }">
-                    <div :class="[color.selectedClass, active && checked ? 'ring-3 ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-hidden']">
-                      <span aria-hidden="true" :class="[color.class, 'size-8 rounded-full border border-black/10']" />
-                    </div>
-                  </RadioGroupOption>
-                </RadioGroup>
-              </fieldset>
-            </div> -->
-
-            <!-- Sizes -->
-            <!-- <div class="mt-10">
-              <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-900">Size</h3>
-                <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Size guide</a>
-              </div>
-
-              <fieldset aria-label="Choose a size" class="mt-4">
-                <RadioGroup v-model="selectedSize" class="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                  <RadioGroupOption as="template" v-for="size in product.sizes" :key="size.name" :value="size" :disabled="!size.inStock" v-slot="{ active, checked }">
-                    <div :class="[size.inStock ? 'cursor-pointer bg-white text-gray-900 shadow-xs' : 'cursor-not-allowed bg-gray-50 text-gray-200', active ? 'ring-2 ring-indigo-500' : '', 'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-hidden sm:flex-1 sm:py-6']">
-                      <span>{{ size.name }}</span>
-                      <span v-if="size.inStock" :class="[active ? 'border' : 'border-2', checked ? 'border-indigo-500' : 'border-transparent', 'pointer-events-none absolute -inset-px rounded-md']" aria-hidden="true" />
-                      <span v-else aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200">
-                        <svg class="absolute inset-0 size-full stroke-2 text-gray-200" viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
-                          <line x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke" />
-                        </svg>
-                      </span>
-                    </div>
-                  </RadioGroupOption>
-                </RadioGroup>
-              </fieldset>
-            </div> -->
-
-            <button type="submit" class="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">Reserve</button>
-          </form>
         </div>
 
-        <div class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pt-6 lg:pr-8 lg:pb-16">
-          <!-- Description and details -->
-          <div>
-            <h3 class="sr-only">Description</h3>
-
-            <div class="space-y-6">
-              <p class="text-base text-gray-900">{{ restaurant.description }}</p>
+        <!-- Product Info -->
+        <div class="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-16 lg:pb-24">
+          <div class="grid lg:grid-cols-3 gap-x-8">
+            <!-- Left Panel -->
+            <div class="lg:col-span-2 border-r pr-8">
+              <h1 class="text-3xl font-bold text-gray-900">{{ restaurant.title }}</h1>
+              <p class="mt-4 text-gray-700">{{ restaurant.description }}</p>
+            </div>
+            <!-- Right Panel -->
+            <div class="mt-6 lg:mt-0">
+              <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
+              <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded">
+                Reserve
+              </button>
             </div>
           </div>
 
-          <!-- <div class="mt-10">
-            <h3 class="text-sm font-medium text-gray-900">Highlights</h3>
+<!-- Layout Preview -->
+<div
+  v-if="layout && (layout.tables?.length || layout.walls?.length)"
+  class="mt-10 flex flex-col items-center"
+>
+  <h3 class="text-lg font-semibold mb-4 text-center">Layout Preview</h3>
+  <div class="overflow-auto border rounded shadow bg-white">
+    <canvas
+      ref="layoutCanvas"
+      width="900"
+      height="500"
+      class="block"
+    ></canvas>
+  </div>
+</div>
 
-            <div class="mt-4">
-              <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
-                <li v-for="highlight in product.highlights" :key="highlight" class="text-gray-400">
-                  <span class="text-gray-600">{{ highlight }}</span>
-                </li>
-              </ul>
-            </div>
-          </div> -->
-
-          <!-- <div class="mt-10">
-            <h2 class="text-sm font-medium text-gray-900">Details</h2>
-
-            <div class="mt-4 space-y-6">
-              <p class="text-sm text-gray-600">{{ product.details }}</p>
-            </div>
-          </div> -->
         </div>
       </div>
     </div>
-  </div>
   </NoHeroLayout>
 </template>
