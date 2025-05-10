@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::with('category', 'restaurant_images')->orderBy('id', 'desc')->limit(5)->get();
+        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->limit(5)->get();
         $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->limit(5)->get();
     
         return Inertia::render('User/Index', [
@@ -31,7 +31,7 @@ class UserController extends Controller
 
     public function restaurant($id)
     {
-        $restaurant = Restaurant::with('category', 'restaurant_images')->findOrFail($id);
+        $restaurant = Restaurant::with('categories', 'restaurant_images')->findOrFail($id);
     
         return Inertia::render('User/SelectedRestaurant/Index', [
             'restaurant' => $restaurant,
@@ -45,7 +45,7 @@ class UserController extends Controller
 
     public function restaurants()
     {
-        $restaurants = Restaurant::with('category', 'restaurant_images')->orderBy('id', 'desc')->limit(8)->get();
+        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->limit(8)->get();
         return Inertia::render('User/Restaurant', [
             'restaurants' => $restaurants,
             'canLogin' => app('router')->has('login'),

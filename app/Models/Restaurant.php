@@ -38,9 +38,9 @@ class Restaurant extends Model
         return $this->hasMany(Image::class);
     }
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
     }
 
     public function user()

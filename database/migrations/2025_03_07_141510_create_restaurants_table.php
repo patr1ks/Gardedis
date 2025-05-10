@@ -1,50 +1,30 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use App\Models\User;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-
-class Restaurant extends Model
+return new class extends Migration
 {
-    use HasSlug, HasFactory;
-
-    protected $fillable = [
-        'title',
-        'slug',
-        'description',
-        'published',
-        'price',
-        'owner',
-        'category_id',
-        'layout_json',
-    ];
-
-    protected $casts = [
-        'layout_json' => 'array',
-    ];
-
-    public function getSlugOptions(): SlugOptions
+    public function up(): void
     {
-        return SlugOptions::create()
-            ->generateSlugsFrom('title')
-            ->saveSlugsTo('slug');
+        Schema::create('restaurants', function (Blueprint $table) {
+            $table->id();
+            $table->string('title', 200);
+            $table->string('slug', 400);
+            $table->longText('description')->nullable();
+            $table->boolean('published')->default(0);
+            $table->decimal('price', 10, 2);
+            $table->foreignIdFor(User::class, 'owner')->nullable();
+            $table->longText('layout_json')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
     }
 
-    public function restaurant_images()
+    public function down(): void
     {
-        return $this->hasMany(Image::class);
+        Schema::dropIfExists('restaurants');
     }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'owner');
-    }
-}
+};

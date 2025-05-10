@@ -1,16 +1,14 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { router } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3';
 import { Plus } from '@element-plus/icons-vue';
 import axios from 'axios';
-import { ElImage } from 'element-plus'
-// import VueSweetalert2 from 'vue-sweetalert2';
-
+import { ElImage } from 'element-plus';
 
 defineProps({
     restaurants: Array
-})
+});
 
 const restaurants = usePage().props.restaurants;
 const categories = usePage().props.categories;
@@ -20,9 +18,8 @@ const isAddRestaurant = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
 const showdialogVisible = ref(false);
-const selectedRestaurant = ref(null)
+const selectedRestaurant = ref(null);
 
-// upload image
 const restaurantImages = ref([]);
 const dialogImageUrl = ref('');
 const handleFileChange = (file, fileList) => {
@@ -33,15 +30,14 @@ const handleFileChange = (file, fileList) => {
     }));
 };
 
-
 const handlePictureCardPreview = (file) => {
-  dialogImageUrl.value = file.url
-  dialogVisible.value = true
-}
+    dialogImageUrl.value = file.url;
+    dialogVisible.value = true;
+};
 
 const handleRemove = (file) => {
-  console.log(file)
-}
+    console.log(file);
+};
 
 // restaurant data
 const id = ref('');
@@ -50,26 +46,24 @@ const description = ref('');
 const price = ref('');
 const published = ref('');
 const restaurant_images = ref([]);
-const category_id = ref('');
+const category_ids = ref([]); // <-- changed from single value to array
 const owner = ref('');
 
-// Open the add modal
 const openAddModal = () => {
     resetFormData();
     isAddRestaurant.value = true;
     dialogVisible.value = true;
     editMode.value = false;
-    
-}  
+};
+
 const AddRestaurant = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('description', description.value);
     formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
     formData.append('owner', owner.value);
+    category_ids.value.forEach(id => formData.append('category_ids[]', id));
 
-    // Append images correctly
     for (const image of restaurantImages.value) {
         if (image.raw) {
             formData.append('restaurant_images[]', image.raw);
@@ -78,9 +72,6 @@ const AddRestaurant = async () => {
 
     try {
         await router.post('restaurants/store', formData, {
-            // headers: {
-            //     'Content-Type': 'multipart/form-data'
-            // },
             onSuccess: (page) => {
                 Swal.fire({
                     toast: true,
@@ -91,7 +82,7 @@ const AddRestaurant = async () => {
                 });
                 dialogVisible.value = false;
                 resetFormData();
-                router.push('/admin/restaurants');
+                router.visit('/admin/restaurants');
             },
         });
     } catch (err) {
@@ -99,40 +90,34 @@ const AddRestaurant = async () => {
     }
 };
 
-
-// reset data after adding restaurant
 const resetFormData = () => {
     id.value = '';
     title.value = '';
     description.value = '';
     price.value = '';
-    category_id.value = '';
+    category_ids.value = []; // reset array
     owner.value = '';
     restaurantImages.value = [];
     dialogImageUrl.value = '';
-}
+};
 
 const openEditModal = (restaurant) => {
-    // console.log(restaurant);
     editMode.value = true;
     dialogVisible.value = true;
     isAddRestaurant.value = false;
 
-    //update data
     id.value = restaurant.id;
     title.value = restaurant.title;
     description.value = restaurant.description;
     price.value = restaurant.price;
-    category_id.value = restaurant.category_id;
+    category_ids.value = restaurant.categories?.map(c => c.id) || []; // expects many-to-many
     owner.value = restaurant.owner;
     restaurant_images.value = restaurant.restaurant_images;
+};
 
-}
-
-//delete image
 const deleteImage = async (rimage, index) => {
     try {
-        await router.delete('/admin/restaurants/image/'+rimage.id, {
+        await router.delete('/admin/restaurants/image/' + rimage.id, {
             onSuccess: (page) => {
                 restaurant_images.value.splice(index, 1);
                 Swal.fire({
@@ -143,29 +128,27 @@ const deleteImage = async (rimage, index) => {
                     title: page.props.flash.success
                 });
             }
-        })
+        });
     } catch (error) {
         console.log(error);
-        
     }
-}
+};
 
-// update restaurant
 const updateRestaurant = async () => {
     const formData = new FormData();
     formData.append('title', title.value);
     formData.append('description', description.value);
     formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
     formData.append('owner', owner.value);
     formData.append('_method', 'PUT');
+    category_ids.value.forEach(id => formData.append('category_ids[]', id));
 
     for (const image of restaurantImages.value) {
         formData.append('restaurant_images[]', image.raw);
     }
 
     try {
-        await router.post('restaurants/update/'+id.value, formData, {
+        await router.post('restaurants/update/' + id.value, formData, {
             onSuccess: (page) => {
                 dialogVisible.value = false;
                 resetFormData();
@@ -177,13 +160,12 @@ const updateRestaurant = async () => {
                     title: page.props.flash.success
                 });
             }
-        })
+        });
     } catch (error) {
-        
+        console.error(error);
     }
 };
 
-//delete restaurant
 const deleteRestaurant = async (restaurant, index) => {
     Swal.fire({
         title: 'Are you sure?',
@@ -196,9 +178,8 @@ const deleteRestaurant = async (restaurant, index) => {
     }).then((result) => {
         if (result.isConfirmed) {
             try {
-                router.delete('restaurants/destroy/'+restaurant.id, {
+                router.delete('restaurants/destroy/' + restaurant.id, {
                     onSuccess: (page) => {
-                        this.delete(restaurant, index);
                         Swal.fire({
                             toast: true,
                             icon: 'success',
@@ -207,27 +188,27 @@ const deleteRestaurant = async (restaurant, index) => {
                             title: page.props.flash.success
                         });
                     }
-                })
+                });
             } catch (error) {
                 console.log(error);
             }
         }
-    })
-}
-
+    });
+};
 
 const openRestaurantDetails = async (id) => {
     try {
-        const response = await axios.get(`/admin/restaurants/show-data/${id}`)
-        selectedRestaurant.value = response.data.restaurant
-        categories.value = response.data.categories
-        user.value = response.data.user
-        showdialogVisible.value = true
+        const response = await axios.get(`/admin/restaurants/show-data/${id}`);
+        selectedRestaurant.value = response.data.restaurant;
+        categories.value = response.data.categories;
+        user.value = response.data.user;
+        showdialogVisible.value = true;
     } catch (error) {
-        console.error('Failed to load restaurant data:', error)
+        console.error('Failed to load restaurant data:', error);
     }
-}
+};
 </script>
+
 
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -249,13 +230,23 @@ const openRestaurantDetails = async (id) => {
                 <label for="floating_price" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Price</label>
             </div>
 
-            <!-- category select -->
+            <!-- Multi-category checkbox input -->
             <div class="relative z-0 w-full mb-5 group">
-                <label for="underline_select">Select category</label>
-                <select id="underline_select" v-model="category_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-                    <option v-for="category in categories" :key="category.id" :value="category.id" selected>{{category.name}}</option>
-                </select>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select categories</label>
+            <div class="flex flex-wrap gap-3">
+                <div v-for="category in categories" :key="category.id" class="flex items-center space-x-2">
+                <input
+                    type="checkbox"
+                    :id="`category_${category.id}`"
+                    :value="category.id"
+                    v-model="category_ids"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label :for="`category_${category.id}`" class="text-sm text-gray-900 dark:text-gray-300">{{ category.name }}</label>
+                </div>
             </div>
+            </div>
+
 
             <!-- owner (user) select -->
             <div class="relative z-0 w-full mb-5 group">
@@ -317,7 +308,14 @@ const openRestaurantDetails = async (id) => {
                 <p><strong>Title:</strong> {{ selectedRestaurant.title }}</p>
                 <p><strong>Description:</strong> {{ selectedRestaurant.description }}</p>
                 <p><strong>Price:</strong> {{ selectedRestaurant.price }}</p>
-                <p><strong>Category:</strong> {{ selectedRestaurant.category?.name }}</p>
+                <p><strong>Categories:</strong>
+                <span v-if="selectedRestaurant.categories?.length">
+                    <span v-for="(cat, index) in selectedRestaurant.categories" :key="cat.id">
+                    {{ cat.name }}<span v-if="index < selectedRestaurant.categories.length - 1">, </span>
+                    </span>
+                </span>
+                <span v-else>No categories</span>
+                </p>
 
                 <div v-if="selectedRestaurant?.restaurant_images?.length">
                     <p><strong>Images:</strong></p>
@@ -431,7 +429,14 @@ const openRestaurantDetails = async (id) => {
         <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
             <!-- <td class="px-4 py-3">{{restaurant.category.name}}</td> -->
-            <td class="px-4 py-3">{{ restaurant.category ? restaurant.category.name : 'No Category' }}</td>
+            <td class="px-4 py-3">
+            <span v-if="restaurant.categories && restaurant.categories.length">
+                <span v-for="(cat, index) in restaurant.categories" :key="cat.id">
+                {{ cat.name }}<span v-if="index < restaurant.categories.length - 1">, </span>
+                </span>
+            </span>
+            <span v-else>No categories</span>
+            </td>
             <td class="px-4 py-3">{{restaurant.description}}</td>
             <td class="px-4 py-3">{{restaurant.price}}</td> 
             <td class="px-4 py-3">
