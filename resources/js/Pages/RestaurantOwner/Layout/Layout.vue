@@ -2,18 +2,18 @@
   <div class="relative w-full h-full flex flex-col items-start p-4 space-y-3">
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-2">
-      <button :class="mode === 'table' ? activeBtn : defaultBtn" @click="mode = 'table'">🪑 Add Table</button>
-      <button :class="mode === 'wall' ? activeBtn : defaultBtn" @click="mode = 'wall'">🧱 Draw Wall</button>
-      <button :class="mode === 'delete' ? activeBtn : defaultBtn" @click="mode = 'delete'">🗑️ Delete</button>
-      <button :class="defaultBtn" @click="clearLayout">🧹 Clear Layout</button>
-      <button :class="defaultBtn" @click="saveLayout">💾 Save Layout</button>
+      <button :class="mode === 'table' ? activeBtn : defaultBtn" @click="mode = 'table'">Add Table</button>
+      <button :class="mode === 'wall' ? activeBtn : defaultBtn" @click="mode = 'wall'">Draw Wall</button>
+      <button :class="mode === 'delete' ? activeBtn : defaultBtn" @click="mode = 'delete'">Delete</button>
+      <button :class="defaultBtn" @click="clearLayout">Clear Layout</button>
+      <button :class="defaultBtn" @click="saveLayout">Save Layout</button>
     </div>
 
     <!-- Presets -->
     <div class="flex items-center gap-3">
       <span class="font-semibold">Presets:</span>
-      <button :class="defaultBtn" @click="loadPreset('square')">⬛ Square</button>
-      <button :class="defaultBtn" @click="loadPreset('lshape')">📐 L-Shape</button>
+      <button :class="defaultBtn" @click="loadPreset('square')">Square</button>
+      <button :class="defaultBtn" @click="loadPreset('lshape')">L-Shape</button>
     </div>
 
     <!-- Seat Editor Panel -->

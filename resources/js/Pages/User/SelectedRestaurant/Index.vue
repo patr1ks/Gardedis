@@ -1,6 +1,8 @@
 <script setup>
 import NoHeroLayout from '../Layouts/NoHeroLayout.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { router } from '@inertiajs/vue3'
+import Swal from 'sweetalert2'
 
 // Props
 const props = defineProps({
@@ -13,6 +15,71 @@ const layoutCanvas = ref(null)
 const hoveredTableIndex = ref(null)
 const selectedTableIndex = ref(null)
 
+const layoutCanvasWidth = 800
+const layoutCanvasHeight = 600
+const scale = 0.9
+
+const selectedTime = ref('')
+const timeSlots = []
+for (let hour = 9; hour < 22; hour++) {
+  const start = `${hour.toString().padStart(2, '0')}:00`
+  const end = `${(hour + 1).toString().padStart(2, '0')}:00`
+  timeSlots.push(`${start} - ${end}`)
+}
+
+const selectedTableLabel = computed(() => {
+  return selectedTableIndex.value !== null
+    ? `Selected table: ${selectedTableIndex.value + 1}`
+    : 'No table selected'
+})
+
+// ✅ Reservation with Swal toast
+const reserveTable = async () => {
+  if (selectedTableIndex.value === null || !selectedTime.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Please select a table and time.',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2000,
+    })
+    return
+  }
+
+  try {
+    await router.post('/reservations/store', {
+      restaurant_id: props.restaurant.id,
+      table_number: selectedTableIndex.value + 1,
+      time: selectedTime.value,
+      price: props.restaurant.price,
+    }, {
+      onSuccess: (page) => {
+        Swal.fire({
+          toast: true,
+          icon: 'success',
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 2000,
+          title: page.props.flash?.success || 'Reservation successful!',
+        })
+
+        selectedTableIndex.value = null
+        selectedTime.value = ''
+      }
+    })
+  } catch (error) {
+    console.error(error)
+    Swal.fire({
+      toast: true,
+      icon: 'error',
+      position: 'top-end',
+      showConfirmButton: false,
+      title: 'Reservation failed!',
+    })
+  }
+}
+
 const tableImage = new Image()
 tableImage.src =
   'data:image/svg+xml;charset=utf-8,' +
@@ -21,19 +88,21 @@ tableImage.src =
 const getMousePos = (event) => {
   const rect = layoutCanvas.value.getBoundingClientRect()
   return {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
+    x: (event.clientX - rect.left) / scale,
+    y: (event.clientY - rect.top) / scale
   }
 }
 
 const drawLayout = () => {
   const ctx = layoutCanvas.value.getContext('2d')
   ctx.clearRect(0, 0, layoutCanvas.value.width, layoutCanvas.value.height)
+  ctx.save()
+  ctx.scale(scale, scale)
+
   ctx.lineWidth = 3
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
-  // Draw walls
   for (const wall of props.layout.walls || []) {
     ctx.strokeStyle = '#333'
     ctx.beginPath()
@@ -42,18 +111,13 @@ const drawLayout = () => {
     ctx.stroke()
   }
 
-  // Draw tables (using only text color changes with state)
   for (const [i, table] of (props.layout.tables || []).entries()) {
     const size = 60
     ctx.drawImage(tableImage, table.x - size / 2, table.y - size / 2, size, size)
 
-    // Determine text color based on state
     let textColor = 'black'
-    if (selectedTableIndex.value === i) {
-      textColor = '#065F46'  // dark green when selected
-    } else if (hoveredTableIndex.value === i) {
-      textColor = '#00A86B'  // light green when hovered
-    }
+    if (selectedTableIndex.value === i) textColor = '#065F46'
+    else if (hoveredTableIndex.value === i) textColor = '#00A86B'
 
     ctx.fillStyle = textColor
     ctx.font = '14px sans-serif'
@@ -61,18 +125,24 @@ const drawLayout = () => {
     ctx.fillText(`Table ${i + 1}`, table.x, table.y - size / 2 - 10)
     ctx.fillText(`${table.seats} seats`, table.x, table.y + size / 2 + 15)
   }
+
+  ctx.restore()
 }
 
 const handleMouseMove = (event) => {
   const { x, y } = getMousePos(event)
   hoveredTableIndex.value = null
+  let hovering = false
 
   for (const [i, table] of props.layout.tables.entries()) {
     if (Math.hypot(table.x - x, table.y - y) < 30) {
       hoveredTableIndex.value = i
+      hovering = true
       break
     }
   }
+
+  layoutCanvas.value.style.cursor = hovering ? 'pointer' : 'default'
   drawLayout()
 }
 
@@ -80,7 +150,6 @@ const handleClick = (event) => {
   const { x, y } = getMousePos(event)
   for (const [i, table] of props.layout.tables.entries()) {
     if (Math.hypot(table.x - x, table.y - y) < 30) {
-      // Toggle selection: if clicked again, deselect
       selectedTableIndex.value = selectedTableIndex.value === i ? null : i
       drawLayout()
       return
@@ -89,19 +158,11 @@ const handleClick = (event) => {
 }
 
 const nextImage = () => {
-  if (currentIndex.value < props.restaurant.restaurant_images.length - 1) {
-    currentIndex.value++
-  } else {
-    currentIndex.value = 0
-  }
+  currentIndex.value = (currentIndex.value + 1) % props.restaurant.restaurant_images.length
 }
 
 const prevImage = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value--
-  } else {
-    currentIndex.value = props.restaurant.restaurant_images.length - 1
-  }
+  currentIndex.value = (currentIndex.value - 1 + props.restaurant.restaurant_images.length) % props.restaurant.restaurant_images.length
 }
 
 onMounted(() => {
@@ -133,62 +194,75 @@ onMounted(() => {
               <img :src="`/${image.image}`" class="w-full h-full object-contain" alt="Restaurant Image" />
             </div>
           </div>
-          <div class="flex justify-center pt-4 space-x-3">
-  <button
-    @click="prevImage"
-    class="p-2 rounded-full border border-gray-300 hover:bg-blue-600 transition"
-    aria-label="Previous"
-  >
-    <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-    </svg>
-  </button>
-  <button
-    @click="nextImage"
-    class="p-2 rounded-full border border-gray-300 hover:bg-blue-600 transition"
-    aria-label="Next"
-  >
-    <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-    </svg>
-  </button>
-</div>
 
+          <!-- Prev/Next Buttons -->
+          <div class="flex justify-center pt-4 space-x-4">
+            <button
+              @click="prevImage"
+              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
+              aria-label="Previous"
+            >
+              &lt;
+            </button>
+            <button
+              @click="nextImage"
+              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
+              aria-label="Next"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
 
-        <!-- Product Info -->
+        <!-- Restaurant Info -->
         <div class="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-16 lg:pb-24">
           <div class="grid lg:grid-cols-3 gap-x-8">
-            <!-- Left Panel -->
+            <!-- Left: Info and Canvas -->
             <div class="lg:col-span-2 border-r pr-8">
               <h1 class="text-3xl font-bold text-gray-900">{{ restaurant.title }}</h1>
               <p class="mt-4 text-gray-700">{{ restaurant.description }}</p>
+
+              <div v-if="layout && (layout.tables?.length || layout.walls?.length)" class="mt-10">
+                <h3 class="text-lg font-semibold mb-4 text-center">Layout Preview</h3>
+                <div class="w-full border rounded shadow bg-white overflow-x-auto">
+                  <canvas
+                    ref="layoutCanvas"
+                    :width="layoutCanvasWidth"
+                    :height="layoutCanvasHeight"
+                    class="block max-w-full"
+                  ></canvas>
+                </div>
+              </div>
             </div>
-            <!-- Right Panel -->
+
+            <!-- Right: Time and Reserve -->
             <div class="mt-6 lg:mt-0">
               <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
-              <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded">
+
+              <div class="mt-6">
+                <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedTableLabel }}</p>
+
+                <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
+                <select
+                  id="timeSelect"
+                  v-model="selectedTime"
+                  :disabled="selectedTableIndex === null"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                >
+                  <option value="" disabled>Select time</option>
+                  <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
+                </select>
+              </div>
+
+              <button
+                @click="reserveTable"
+                :disabled="selectedTableIndex === null || !selectedTime"
+                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
                 Reserve
               </button>
             </div>
           </div>
-
-<!-- Layout Preview -->
-<div
-  v-if="layout && (layout.tables?.length || layout.walls?.length)"
-  class="mt-10 flex flex-col items-center"
->
-  <h3 class="text-lg font-semibold mb-4 text-center">Layout Preview</h3>
-  <div class="overflow-auto border rounded shadow bg-white">
-    <canvas
-      ref="layoutCanvas"
-      width="900"
-      height="500"
-      class="block"
-    ></canvas>
-  </div>
-</div>
-
         </div>
       </div>
     </div>

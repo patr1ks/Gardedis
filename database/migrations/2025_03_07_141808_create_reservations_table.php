@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Restaurant;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,10 +16,12 @@ return new class extends Migration
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
             $table->decimal('price', 10, 2);
-            $table->string('status', 45);
-            $table->string('table_id'); // matches JSON table ID
-            $table->foreignIdFor(User::class, 'created_by')->nullable();
-            $table->foreignIdFor(User::class, 'updated_by')->nullable();
+            $table->string('status', 45)->default('pending');
+            $table->unsignedInteger('table_number');
+            $table->string('time');
+            $table->foreignIdFor(Restaurant::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(User::class, 'created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignIdFor(User::class, 'updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

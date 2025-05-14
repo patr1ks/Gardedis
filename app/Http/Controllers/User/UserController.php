@@ -10,6 +10,7 @@ use App\Models\Restaurant;
 use App\Models\Event;
 use App\Models\RestaurantForm;
 use App\Models\Contact;
+use App\Models\Reservation;
 
 class UserController extends Controller
 {
@@ -127,5 +128,28 @@ class UserController extends Controller
     {
         return Inertia::render('User/About');
     }
+
+    public function storeReservation(Request $request)
+    {
+        $validated = $request->validate([
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'table_number' => 'required|integer',
+            'time' => 'required|string',
+            'price' => 'required|numeric',
+        ]);
+    
+        $reservation = Reservation::create([
+            'restaurant_id' => $validated['restaurant_id'],
+            'table_number' => $validated['table_number'],
+            'time' => $validated['time'],
+            'price' => $validated['price'],
+            'status' => 'pending',
+            'created_by' => auth()->id(),
+        ]);
+    
+        return redirect()->back()->with('success', 'Reservation successful!');
+    }
+    
+
     
 }

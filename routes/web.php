@@ -43,6 +43,7 @@ Route::post('/application/store', [UserController::class, 'storeApplication'])->
 Route::get('/about', [UserController::class, 'about'])->name('user.about');
 Route::get('/contacts', [UserController::class, 'contacts'])->name('user.contacts');
 Route::post('/contacts/store', [UserController::class, 'storeContacts'])->name('user.contacts.storeContacts');
+Route::post('/reservations/store', [UserController::class, 'storeReservation'])->name('user.reservations.storeReservation');
 
 
 
