@@ -40,32 +40,33 @@ const openAddModal = () => {
     
 }  
 const AddMenu = async () => {
-    const formData = new FormData();
-    formData.append('restaurant_id', restaurant_id.value);
-    formData.append('name', name.value);
-    formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('isSpecial', isSpecial.value ? 1 : 0);  // checkbox boolean
+  const formData = new FormData();
+  formData.append('restaurant_id', restaurant_id.value);
+  formData.append('name', name.value);
+  formData.append('description', description.value);
+  formData.append('price', price.value);
+  formData.append('isSpecial', isSpecial.value ? 1 : 0);
 
-    try {
-        await router.post('menu/store', formData, {
-            onSuccess: (page) => {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash?.success || 'Menu item added successfully!',
-                });
-                dialogVisible.value = false;
-                resetFormData();
-                router.push('/restaurant-owner/menu');
-            },
+  try {
+    await router.post('menu/store', formData, {
+      onSuccess: (page) => {
+        Swal.fire({
+          toast: true,
+          icon: 'success',
+          position: 'top-end',
+          showConfirmButton: false,
+          title: page.props.flash?.success || 'Menu item added successfully!',
         });
-    } catch (err) {
-        console.error(err);
-    }
+        dialogVisible.value = false;
+        resetFormData();
+        router.visit('/restaurant-owner/menu');
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
 };
+
 
 
 

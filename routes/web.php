@@ -90,6 +90,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::post('/users/store', [AdminUserController::class, 'store'])->name('admin.users.store');
     Route::delete('/users/destroy/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     Route::get('/users/show-data/{id}', [AdminUserController::class, 'showData'])->name('admin.users.showData');
+    Route::put('users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
 
     Route::get('/contacts', [ContactController::class, 'index'])->name('admin.contacts.index');
     Route::delete('/contacts/destroy/{id}', [ContactController::class, 'destroy'])->name('admin.contacts.destroy');

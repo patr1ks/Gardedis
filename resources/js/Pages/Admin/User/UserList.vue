@@ -1,171 +1,136 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { router } from '@inertiajs/vue3'
-import { Plus } from '@element-plus/icons-vue';
-// import VueSweetalert2 from 'vue-sweetalert2';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
-
-defineProps({
-    users: Array
-})
-
-// const restaurants = usePage().props.restaurants;
-const users = usePage().props.users;
-const selectedUser = ref(null)
-const showUserDialog = ref(false)
-
+const users = ref([...usePage().props.users]);
+const selectedUser = ref(null);
+const showUserDialog = ref(false);
+const dialogVisible = ref(false);
 const isAddUser = ref(false);
 const editMode = ref(false);
-const dialogVisible = ref(false);
 
-// event data
+// user data
 const id = ref('');
 const name = ref('');
 const email = ref('');
 const password = ref('');
-const isAdmin = ref('');
-const isRestaurant = ref([]);
+const selectedRole = ref('');
 
-// Open the add modal
+const resetFormData = () => {
+    id.value = '';
+    name.value = '';
+    email.value = '';
+    password.value = '';
+    selectedRole.value = '';
+};
+
 const openAddModal = () => {
     resetFormData();
     isAddUser.value = true;
-    dialogVisible.value = true;
     editMode.value = false;
-    
-}  
+    dialogVisible.value = true;
+};
+
 const AddUser = async () => {
     const formData = new FormData();
     formData.append('name', name.value);
     formData.append('email', email.value);
     formData.append('password', password.value);
-    formData.append('isAdmin', isAdmin.value);
-    formData.append('isRestaurant', isRestaurant.value);
+    formData.append('isAdmin', selectedRole.value === 'admin' ? 1 : 0);
+    formData.append('isRestaurant', selectedRole.value === 'restaurant' ? 1 : 0);
 
     try {
-        await router.post('users/store', formData, {
-            // headers: {
-            //     'Content-Type': 'multipart/form-data'
-            // },
-            onSuccess: (page) => {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash?.success || 'User added successfully!',
-                });
-                dialogVisible.value = false;
-                resetFormData();
-                router.push('/admin/users');
-            },
+        const response = await axios.post('/admin/users/store', formData);
+        users.value.push(response.data.user);
+        dialogVisible.value = false;
+        resetFormData();
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            title: response.data.message,
         });
     } catch (err) {
         console.error(err);
     }
 };
 
-
-// reset data after adding event
-const resetFormData = () => {
-    id.value = '';
-    name.value = '';
-    email.value = '';
-    password.value = '';
-    isAdmin.value = [];
-    isRestaurant.value = '';
-}
-
 const openEditModal = (user) => {
-    // console.log(event);
-    editMode.value = true;
-    dialogVisible.value = true;
-    isAddUser.value = false;
-
-    //update data
     id.value = user.id;
     name.value = user.name;
     email.value = user.email;
-    password.value = user.password;
-    isAdmin.value = user.isAdmin;
-    isRestaurant.value = user.isRestaurant;
+    password.value = '';
+    selectedRole.value = user.isAdmin ? 'admin' : (user.isRestaurant ? 'restaurant' : '');
+    editMode.value = true;
+    isAddUser.value = false;
+    dialogVisible.value = true;
+};
 
-}
-
-// update event
 const updateUser = async () => {
     const formData = new FormData();
     formData.append('name', name.value);
     formData.append('email', email.value);
-    formData.append('password', password.value);
-    formData.append('isAdmin', isAdmin.value);
-    formData.append('isRestaurant', isRestaurant.value);
+    if (password.value) formData.append('password', password.value);
+    formData.append('isAdmin', selectedRole.value === 'admin' ? 1 : 0);
+    formData.append('isRestaurant', selectedRole.value === 'restaurant' ? 1 : 0);
     formData.append('_method', 'PUT');
 
     try {
-        await router.post('users/update/'+id.value, formData, {
-            onSuccess: (page) => {
-                dialogVisible.value = false;
-                resetFormData();
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
-    } catch (error) {
-        
+        const response = await axios.post('/admin/users/' + id.value, formData);
+        const updatedUser = response.data.user;
+        const index = users.value.findIndex(u => u.id === updatedUser.id);
+        if (index !== -1) users.value[index] = updatedUser;
+
+        dialogVisible.value = false;
+        resetFormData();
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            title: response.data.message,
+        });
+    } catch (err) {
+        console.error(err);
     }
 };
 
-//delete event
-const deleteUser = async (user, index) => {
-    Swal.fire({
+const deleteUser = async (user) => {
+    const confirmed = await Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: 'This will delete the user.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                router.delete('users/destroy/'+user.id, {
-                    onSuccess: (page) => {
-                        this.delete(user, index);
-                        Swal.fire({
-                            toast: true,
-                            icon: 'success',
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            title: page.props.flash.success
-                        });
-                    }
-                })
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    })
-}
+        confirmButtonText: 'Yes, delete it!',
+    });
 
-const openUserDetails = async (id) => {
+    if (!confirmed.isConfirmed) return;
+
     try {
-        const response = await axios.get(`/admin/users/show-data/${id}`)
-        selectedUser.value = response.data.user
-        showUserDialog.value = true
-    } catch (error) {
-        console.error('Failed to load user data:', error)
+        await axios.delete('/admin/users/destroy/' + user.id);
+        users.value = users.value.filter(u => u.id !== user.id);
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            title: 'User deleted',
+        });
+    } catch (err) {
+        console.error('Delete failed:', err);
     }
-}
-
-
+};
 </script>
+
+
+
+
 
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -178,21 +143,50 @@ const openUserDetails = async (id) => {
         > 
             <!-- form start -->
             <form @submit.prevent="editMode ? updateUser():AddUser()" class="max-w-md mx-auto">
+            <!-- Name -->
             <div class="relative z-0 w-full mb-5 group">
-                <input v-model="name" type="text" name="floating_name" id="floating_name" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_name" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Name</label>
-            </div>
-            <div class="relative z-0 w-full mb-5 group">
-                <input v-model="email" type="text" name="floating_email" id="floating_email" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_email" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email</label>
-            </div>
-            <div class="relative z-0 w-full mb-5 group">
-                <input v-model="password" type="text" name="floating_password" id="floating_password" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_password" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+                <input v-model="name" type="text" name="floating_name" id="floating_name"
+                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " required />
+                <label for="floating_name"
+                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Name</label>
             </div>
 
-            <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+            <!-- Email -->
+            <div class="relative z-0 w-full mb-5 group">
+                <input v-model="email" type="email" name="floating_email" id="floating_email"
+                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " required />
+                <label for="floating_email"
+                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email</label>
+            </div>
+
+            <!-- Password -->
+            <div class="relative z-0 w-full mb-5 group">
+                <input v-model="password" type="text" name="floating_password" id="floating_password"
+                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" " required />
+                <label for="floating_password"
+                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+            </div>
+
+            <!-- Role -->
+            <div class="relative z-0 w-full mb-5 group">
+                <label for="role_select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select role</label>
+                <select id="role_select" v-model="selectedRole"
+                class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                <option value="" disabled>Select role</option>
+                <option value="admin">Admin</option>
+                <option value="restaurant">Restaurant</option>
+                </select>
+            </div>
+
+            <button type="submit"
+                class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Submit
+            </button>
             </form>
+
             <!-- form end -->
         
         </el-dialog>
@@ -289,8 +283,12 @@ const openUserDetails = async (id) => {
         <tr v-for="user in users" :key="user.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ user.name }}</th>
             <td class="px-4 py-3">{{user.email}}</td>
-            <!-- <td class="px-4 py-3">{{user.isAdmin}}</td>
-            <td class="px-4 py-3">{{user.isRestaurant}}</td>  -->
+            <td class="px-4 py-3">
+                <span v-if="user.isAdmin">Admin</span>
+                <span v-else-if="user.isRestaurant">Restaurant</span>
+                <span v-else>—</span>
+            </td>
+
             <td class="px-4 py-3 flex items-center justify-end">
                 <button :id="'dropdown-button-' + user.id" :data-dropdown-toggle="'dropdown-' + user.id"
                     class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
