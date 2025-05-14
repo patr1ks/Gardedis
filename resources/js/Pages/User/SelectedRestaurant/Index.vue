@@ -4,7 +4,6 @@ import { ref, onMounted, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 
-// Props
 const props = defineProps({
   restaurant: Object,
   layout: Object
@@ -17,7 +16,18 @@ const selectedTableIndex = ref(null)
 
 const layoutCanvasWidth = 800
 const layoutCanvasHeight = 600
-const scale = 0.9
+const scale = 1
+
+// New date logic with Riga timezone
+const rigaNow = new Date().toLocaleString('en-CA', {
+  timeZone: 'Europe/Riga',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+const today = rigaNow.split(',')[0]
+const selectedDate = ref(today)
+
 
 const selectedTime = ref('')
 const timeSlots = []
@@ -33,12 +43,11 @@ const selectedTableLabel = computed(() => {
     : 'No table selected'
 })
 
-// ✅ Reservation with Swal toast
 const reserveTable = async () => {
-  if (selectedTableIndex.value === null || !selectedTime.value) {
+  if (selectedTableIndex.value === null || !selectedTime.value || !selectedDate.value) {
     Swal.fire({
       icon: 'warning',
-      title: 'Please select a table and time.',
+      title: 'Please select a table, date and time.',
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
@@ -51,6 +60,7 @@ const reserveTable = async () => {
     await router.post('/reservations/store', {
       restaurant_id: props.restaurant.id,
       table_number: selectedTableIndex.value + 1,
+      date: selectedDate.value,
       time: selectedTime.value,
       price: props.restaurant.price,
     }, {
@@ -66,6 +76,7 @@ const reserveTable = async () => {
 
         selectedTableIndex.value = null
         selectedTime.value = ''
+        selectedDate.value = today
       }
     })
   } catch (error) {
@@ -236,23 +247,34 @@ onMounted(() => {
             </div>
 
             <!-- Right: Time and Reserve -->
-            <div class="mt-6 lg:mt-0">
-              <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
+            <div class="lg:col-span-1 mt-6">
+          <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
 
-              <div class="mt-6">
-                <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedTableLabel }}</p>
+          <div class="mt-4">
+            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Choose Date</label>
+            <input
+              type="date"
+              id="date"
+              v-model="selectedDate"
+              :min="today"
+              :disabled="selectedTableIndex === null"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+            />
+          </div>
 
-                <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
-                <select
-                  id="timeSelect"
-                  v-model="selectedTime"
-                  :disabled="selectedTableIndex === null"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                >
-                  <option value="" disabled>Select time</option>
-                  <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
-                </select>
-              </div>
+          <div class="mt-4">
+            <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
+            <select
+              id="timeSelect"
+              v-model="selectedTime"
+              :disabled="selectedTableIndex === null"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+            >
+              <option value="" disabled>Select time</option>
+              <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
+            </select>
+          </div>
+
 
               <button
                 @click="reserveTable"

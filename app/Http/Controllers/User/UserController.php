@@ -134,6 +134,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'restaurant_id' => 'required|exists:restaurants,id',
             'table_number' => 'required|integer',
+            'date' => 'required|date|after_or_equal:today',
             'time' => 'required|string',
             'price' => 'required|numeric',
         ]);
@@ -141,6 +142,7 @@ class UserController extends Controller
         $reservation = Reservation::create([
             'restaurant_id' => $validated['restaurant_id'],
             'table_number' => $validated['table_number'],
+            'date' => $validated['date'],
             'time' => $validated['time'],
             'price' => $validated['price'],
             'status' => 'pending',
@@ -148,7 +150,7 @@ class UserController extends Controller
         ]);
     
         return redirect()->back()->with('success', 'Reservation successful!');
-    }
+    }       
 
     public function reservations()
     {

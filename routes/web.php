@@ -20,6 +20,7 @@ use App\Http\Controllers\Restaurant\RestaurantOwnerController;
 use App\Http\Controllers\Restaurant\MenuController;
 use App\Http\Controllers\Restaurant\OwnerRestaurantController;
 use App\Http\Controllers\Restaurant\OwnerLayoutController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,10 @@ Route::get('/', [UserController::class, 'index'])->name('user.home');
 Route::get('/login', function () {
     return Inertia::render('User/Auth/Login');
 })->name('login');
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
 
 // User public routes
 Route::get('/restaurant/{id}', [UserController::class, 'restaurant'])->name('user.restaurant');
