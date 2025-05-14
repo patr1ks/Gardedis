@@ -248,33 +248,33 @@ onMounted(() => {
 
             <!-- Right: Time and Reserve -->
             <div class="lg:col-span-1 mt-6">
-          <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
+              <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
 
-          <div class="mt-4">
-            <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Choose Date</label>
-            <input
-              type="date"
-              id="date"
-              v-model="selectedDate"
-              :min="today"
-              :disabled="selectedTableIndex === null"
-              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-            />
-          </div>
+              <div class="mt-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedTableLabel }}</p>
+                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Choose Date</label>
+                <input
+                  type="date"
+                  id="date"
+                  v-model="selectedDate"
+                  :min="today"
+                  :disabled="selectedTableIndex === null"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                />
+              </div>
 
-          <div class="mt-4">
-            <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
-            <select
-              id="timeSelect"
-              v-model="selectedTime"
-              :disabled="selectedTableIndex === null"
-              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-            >
-              <option value="" disabled>Select time</option>
-              <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
-            </select>
-          </div>
-
+              <div class="mt-4">
+                <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
+                <select
+                  id="timeSelect"
+                  v-model="selectedTime"
+                  :disabled="selectedTableIndex === null"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                >
+                  <option value="" disabled>Select time</option>
+                  <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
+                </select>
+              </div>
 
               <button
                 @click="reserveTable"
@@ -284,6 +284,7 @@ onMounted(() => {
                 Reserve
               </button>
             </div>
+
           </div>
         </div>
       </div>
