@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ProfileController;
@@ -26,14 +25,16 @@ use App\Http\Controllers\Restaurant\OwnerLayoutController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::get('/', [UserController::class, 'index'])->name('user.home');
+
+
+Route::get('/login', function () {
+    return Inertia::render('User/Auth/Login');
+})->name('login');
+
+// User public routes
 Route::get('/restaurant/{id}', [UserController::class, 'restaurant'])->name('user.restaurant');
 Route::get('/events', [UserController::class, 'events'])->name('user.events');
 Route::get('/event/{id}', [UserController::class, 'event'])->name('user.event');
@@ -45,19 +46,19 @@ Route::get('/contacts', [UserController::class, 'contacts'])->name('user.contact
 Route::post('/contacts/store', [UserController::class, 'storeContacts'])->name('user.contacts.storeContacts');
 Route::post('/reservations/store', [UserController::class, 'storeReservation'])->name('user.reservations.storeReservation');
 
-
-
+// Dashboard example
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Profile routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//admin routs
+// Admin routes
 Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function () {
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
@@ -96,19 +97,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::delete('/contacts/destroy/{id}', [ContactController::class, 'destroy'])->name('admin.contacts.destroy');
     Route::get('/contacts/show-data/{id}', [ContactController::class, 'showData'])->name('admin.contacts.showData');
 
-    // restaurant routes
     Route::get('/restaurants', [RestaurantController::class, 'index'])->name('admin.restaurants.index');
     Route::post('/restaurants/store', [RestaurantController::class, 'store'])->name('admin.restaurants.store');
     Route::put('/restaurants/update/{id}', [RestaurantController::class, 'update'])->name('admin.restaurants.update');
     Route::delete('/restaurants/image/{id}', [RestaurantController::class, 'deleteImage'])->name('admin.restaurants.image.delete');
     Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
     Route::get('/restaurants/show-data/{id}', [RestaurantController::class, 'showData'])->name('admin.restaurants.showData');
-
 });
-//end
 
-// restaurant owner routes
-
+// Restaurant Owner routes
 Route::group(['prefix' => 'restaurant-owner', 'middleware' => 'redirectRestaurant'], function () {
     Route::get('/login', [RestaurantAuthController::class, 'showLoginForm'])->name('restaurantOwner.login');
     Route::post('/login', [RestaurantAuthController::class, 'login'])->name('restaurantOwner.login.post');
@@ -131,14 +128,9 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::get('/restaurant/show-data/{id}', [OwnerRestaurantController::class, 'showData'])->name('restaurantOwner.restaurant.showData');
 
     Route::get('/layout', [OwnerLayoutController::class, 'index'])->name('restaurantOwner.layout.index');
-    // Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
     Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
     Route::post('/layout/store', [OwnerLayoutController::class, 'store'])->name('restaurantOwner.layout.store');
     Route::get('/layout-json', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.json');
 });
-
-
-
-// end
 
 require __DIR__.'/auth.php';
