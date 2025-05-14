@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Restaurant::class)->constrained()->onDelete('cascade');
             $table->decimal('price', 10, 2);
             $table->string('status', 45)->default('pending');
             $table->unsignedInteger('table_number');
             $table->string('time');
-            $table->foreignIdFor(Restaurant::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(User::class, 'created_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignIdFor(User::class, 'updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->date('reservation_date');
             $table->timestamps();
         });
     }

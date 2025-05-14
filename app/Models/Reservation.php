@@ -10,14 +10,14 @@ class Reservation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'restaurant_id',
+        'table_number',
+        'reservation_date',
+        'time',
         'price',
         'status',
-        'table_number',
-        'time',
-        'restaurant_id',
-        'created_by',
-        'updated_by',
-    ];
+    ];    
 
     // Relationships (optional but useful)
     public function restaurant()
@@ -34,4 +34,10 @@ class Reservation extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }
