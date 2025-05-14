@@ -53,7 +53,7 @@ const AddCategory = async () => {
                 });
                 dialogVisible.value = false;
                 resetFormData();
-                router.push('/admin/categories');
+                router.visit('/admin/categories');
             },
         });
     } catch (err) {
@@ -120,7 +120,7 @@ const deleteCategory = async (category, index) => {
             try {
                 router.delete('categories/destroy/'+category.id, {
                     onSuccess: (page) => {
-                        this.delete(category, index);
+                        categories.splice(index, 1);
                         Swal.fire({
                             toast: true,
                             icon: 'success',
@@ -220,7 +220,7 @@ const openCategoryDetails = async (id) => {
         </tr>
     </thead>
     <tbody>
-        <tr v-for="category in categories" :key="category.id" class="border-b dark:border-gray-700">
+        <tr v-for="(category, index) in categories" :key="category.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ category.name }}</th>
             <td class="px-4 py-3 flex items-center justify-end">
                 <button :id="'dropdown-button-' + category.id" :data-dropdown-toggle="'dropdown-' + category.id"
@@ -241,7 +241,7 @@ const openCategoryDetails = async (id) => {
                         </li>
                     </ul>
                     <div class="py-1">
-                        <a href="#" @click="deleteCategory(categoryt, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+                        <a href="#" @click="deleteCategory(category, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
                     </div>
                 </div>
             </td>
