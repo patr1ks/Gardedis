@@ -28,7 +28,7 @@ const submit = () => {
             <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
 
             <div class="mb-4">
-                <InputLabel for="name" value="Name" class="text-gray-700" />
+                <InputLabel for="name" value="Username" class="text-gray-700" />
                 <TextInput
                     id="name"
                     type="text"

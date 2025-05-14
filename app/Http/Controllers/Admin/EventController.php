@@ -93,8 +93,8 @@ class EventController extends Controller
     }
 
     public function showData($id)
-{
-    $event = Event::with('restaurant', 'event_images')->findOrFail($id);
-    return response()->json(['event' => $event]);
-}
+    {
+        $event = Event::with('restaurant', 'event_images')->findOrFail($id);
+        return response()->json(['event' => $event]);
+    }
 }

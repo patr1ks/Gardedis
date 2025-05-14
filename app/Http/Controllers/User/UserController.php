@@ -149,7 +149,17 @@ class UserController extends Controller
     
         return redirect()->back()->with('success', 'Reservation successful!');
     }
-    
 
+    public function reservations()
+    {
+        $reservations = Reservation::with('restaurant')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+    
+        return Inertia::render('User/Reservations', [
+            'reservations' => $reservations
+        ]);
+    }
     
 }
