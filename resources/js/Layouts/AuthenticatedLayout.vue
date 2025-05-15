@@ -18,7 +18,7 @@ const showingNavigationDropdown = ref(false);
           <!-- Left: Logo + Nav -->
           <div class="flex items-center space-x-6">
             <!-- Logo -->
-            <Link :href="route('dashboard')" class="flex items-center">
+            <Link :href="route('user.home')" class="flex items-center"> 
               <ApplicationLogo class="h-8 w-8 text-blue-700" />
               <span class="ml-2 text-lg font-semibold tracking-wide text-gray-900">Gardēdis</span>
             </Link>

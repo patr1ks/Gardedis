@@ -166,5 +166,14 @@ class UserController extends Controller
             'reservations' => $reservations
         ]);
     }
+
+    public function cancelReservation($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+        $reservation->status = 'cancelled';
+        $reservation->save();
+    
+        return response()->json(['success' => true]);
+    }    
     
 }

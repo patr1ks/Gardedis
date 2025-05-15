@@ -51,6 +51,7 @@ Route::get('/contacts', [UserController::class, 'contacts'])->name('user.contact
 Route::post('/contacts/store', [UserController::class, 'storeContacts'])->name('user.contacts.storeContacts');
 Route::post('/reservations/store', [UserController::class, 'storeReservation'])->name('user.reservations.storeReservation');
 Route::get('/reservations', [UserController::class, 'reservations'])->name('user.reservations');
+Route::post('/reservations/{id}/cancel', [UserController::class, 'cancelReservation']);
 
 
 // Dashboard example
