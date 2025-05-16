@@ -90,7 +90,7 @@ const AddEvent = async () => {
                 });
                 dialogVisible.value = false;
                 resetFormData();
-                router.push('/admin/events');
+                router.visit('/admin/events');
             },
         });
     } catch (err) {

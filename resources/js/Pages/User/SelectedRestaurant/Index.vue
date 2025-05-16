@@ -18,7 +18,6 @@ const selectedTableIndex = ref(null)
 const layoutCanvasWidth = 800
 const layoutCanvasHeight = 600
 const scale = 1
-const selectedSeats = props.layout.tables[selectedTableIndex.value]?.seats || 1
 
 // New date logic with Riga timezone
 const rigaNow = new Date().toLocaleString('en-CA', {
