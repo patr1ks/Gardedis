@@ -191,39 +191,46 @@ onMounted(() => {
   <NoHeroLayout>
     <div class="bg-white">
       <div class="pt-6">
-        <!-- Image Gallery -->
-        <div v-if="restaurant.restaurant_images.length" class="w-full text-center">
-          <div class="relative h-56 md:h-96">
-            <div
-              v-for="(image, index) in restaurant.restaurant_images"
-              :key="index"
-              :class="[
-                'absolute inset-0 transition-opacity duration-700',
-                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-              ]"
-            >
-              <img :src="`/${image.image}`" class="w-full h-full object-contain" alt="Restaurant Image" />
-            </div>
-          </div>
+<!-- Image Gallery -->
+<div v-if="restaurant.restaurant_images.length" class="w-full text-center">
+  <div class="relative h-56 md:h-96">
+    <div
+      v-for="(image, index) in restaurant.restaurant_images"
+      :key="index"
+      :class="[ 
+        'absolute inset-0 transition-opacity duration-700', 
+        index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0' 
+      ]"
+    >
+      <el-image
+        style="width: 100%; height: 100%; object-fit: contain"
+        :src="`/${image.image}`"
+        :preview-src-list="restaurant.restaurant_images.map(img => `/${img.image}`)"
+        :initial-index="index"
+        fit="contain"
+      />
+    </div>
+  </div>
 
-          <!-- Prev/Next Buttons -->
-          <div class="flex justify-center pt-4 space-x-4">
-            <button
-              @click="prevImage"
-              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
-              aria-label="Previous"
-            >
-              &lt;
-            </button>
-            <button
-              @click="nextImage"
-              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
-              aria-label="Next"
-            >
-              &gt;
-            </button>
-          </div>
-        </div>
+  <!-- Prev/Next Buttons -->
+  <div class="flex justify-center pt-4 space-x-4">
+    <button
+      @click="prevImage"
+      class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
+      aria-label="Previous"
+    >
+      &lt;
+    </button>
+    <button
+      @click="nextImage"
+      class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
+      aria-label="Next"
+    >
+      &gt;
+    </button>
+  </div>
+</div>
+
 
         <!-- Restaurant Info -->
         <div class="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-16 lg:pb-24">

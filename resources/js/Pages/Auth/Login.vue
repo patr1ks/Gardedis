@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
 defineProps({
     canResetPassword: {
@@ -15,6 +16,7 @@ defineProps({
         type: String,
     },
 });
+const canRegister = usePage().props.canRegister;
 
 const form = useForm({
     email: '',
@@ -67,28 +69,30 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="flex items-center justify-between mb-6">
+            <!-- <div class="flex items-center justify-between mb-6">
                 <label class="flex items-center text-sm text-gray-600">
                     <Checkbox name="remember" v-model:checked="form.remember" class="rounded border-gray-300 text-blue-500 focus:ring-blue-400" />
                     <span class="ms-2">Remember me</span>
                 </label>
-
+            </div> -->
+            <div class="flex items-center justify-between mb-6">
                 <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
+                    :href="route('register')" v-if="canRegister"
                     class="text-sm text-blue-500 hover:underline"
                 >
-                    Forgot password?
+                    Don't have an account? Register
                 </Link>
             </div>
 
-            <PrimaryButton
-                class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg transition"
+            <button
+                type="submit"
+                class="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-lg transition"
                 :class="{ 'opacity-50': form.processing }"
                 :disabled="form.processing"
             >
                 Log in
-            </PrimaryButton>
+            </button>
+
         </form>
     </GuestLayout>
 </template>

@@ -19,6 +19,7 @@ const editMode = ref(false);
 const dialogVisible = ref(false);
 const showdialogVisible = ref(false);
 const selectedRestaurant = ref(null);
+const uploadKey = ref(0);
 
 const restaurantImages = ref([]);
 const dialogImageUrl = ref('');
@@ -50,10 +51,10 @@ const category_ids = ref([]); // <-- changed from single value to array
 const owner = ref('');
 
 const openAddModal = () => {
-    resetFormData();
-    isAddRestaurant.value = true;
-    dialogVisible.value = true;
-    editMode.value = false;
+  isAddRestaurant.value = true;
+  resetFormData();
+  dialogVisible.value = true;
+  editMode.value = false;
 };
 
 const AddRestaurant = async () => {
@@ -91,28 +92,36 @@ const AddRestaurant = async () => {
 };
 
 const resetFormData = () => {
-    id.value = '';
-    title.value = '';
-    description.value = '';
-    price.value = '';
-    category_ids.value = []; // reset array
-    owner.value = '';
-    restaurantImages.value = [];
-    dialogImageUrl.value = '';
+  id.value = '';
+  title.value = '';
+  description.value = '';
+  price.value = '';
+  category_ids.value = [];
+  owner.value = '';
+  restaurantImages.value = [];
+  dialogImageUrl.value = '';
+  uploadKey.value++;
+
+  if (isAddRestaurant.value) {
+    restaurant_images.value = []; // clear only when adding
+  }
 };
 
 const openEditModal = (restaurant) => {
-    editMode.value = true;
-    dialogVisible.value = true;
-    isAddRestaurant.value = false;
+  editMode.value = true;
+  dialogVisible.value = true;
+  isAddRestaurant.value = false;
 
-    id.value = restaurant.id;
-    title.value = restaurant.title;
-    description.value = restaurant.description;
-    price.value = restaurant.price;
-    category_ids.value = restaurant.categories?.map(c => c.id) || []; // expects many-to-many
-    owner.value = restaurant.owner;
-    restaurant_images.value = restaurant.restaurant_images;
+  id.value = restaurant.id;
+  title.value = restaurant.title;
+  description.value = restaurant.description;
+  price.value = restaurant.price;
+  category_ids.value = restaurant.categories?.map(c => c.id) || [];
+  owner.value = restaurant.owner;
+  restaurant_images.value = restaurant.restaurant_images;
+
+  restaurantImages.value = [];
+  uploadKey.value++;
 };
 
 const deleteImage = async (rimage, index) => {
@@ -266,6 +275,7 @@ const openRestaurantDetails = async (id) => {
                 <div class="relative z-0 w-full mb-5 group">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
                     <el-upload
+                        :key="uploadKey"
                         v-model:file-list="restaurantImages"
                         list-type="picture-card"
                         :on-preview="handlePictureCardPreview"
@@ -273,10 +283,10 @@ const openRestaurantDetails = async (id) => {
                         :on-change="handleFileChange"
                         accept="image/*"
                         :auto-upload="false"
-                    >
+                        multiple
+                        >
                         <el-icon><Plus /></el-icon>
                     </el-upload>
-
                 </div>
             </div>
 

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('reservation_id')->references('id')->on('reservations');
             $table->decimal('price', 10, 2);
             $table->string('status', 45);
-            $table->string('type', 45);
             $table->foreignIdFor(User::class, 'created_by')->nullable();
             $table->foreignIdFor(User::class, 'updated_by')->nullable();
             $table->timestamps();

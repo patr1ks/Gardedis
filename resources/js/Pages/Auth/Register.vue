@@ -89,13 +89,14 @@ const submit = () => {
                 </Link>
             </div>
 
-            <PrimaryButton
+            <button
+                type="submit"
                 class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg transition"
                 :class="{ 'opacity-50': form.processing }"
                 :disabled="form.processing"
             >
                 Register
-            </PrimaryButton>
+            </button>
         </form>
     </GuestLayout>
 </template>

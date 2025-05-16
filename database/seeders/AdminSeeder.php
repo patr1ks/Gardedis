@@ -21,5 +21,16 @@ class AdminSeeder extends Seeder
             'isAdmin' => 1,
             'isRestaurant' => 0,
         ]);
+
+        // Restaurant users from 1 to 10
+        for ($i = 1; $i <= 10; $i++) {
+            User::create([
+                'name' => 'restaurant' . $i,
+                'email' => 'restaurant' . $i . '@gmail.com',
+                'password' => Hash::make('password'),
+                'isAdmin' => 0,
+                'isRestaurant' => 1,
+            ]);
+        }
     }
 }
