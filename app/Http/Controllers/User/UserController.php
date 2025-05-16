@@ -11,6 +11,9 @@ use App\Models\Event;
 use App\Models\RestaurantForm;
 use App\Models\Contact;
 use App\Models\Reservation;
+use App\Models\Payment;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
 
 class UserController extends Controller
 {
@@ -151,7 +154,9 @@ class UserController extends Controller
             'status' => 'pending',  
         ]);        
     
-        return redirect()->back()->with('success', 'Reservation successful!');
+        return response()->json(['reservation_id' => $reservation->id]);
+        
+
     }
         
 
@@ -174,6 +179,58 @@ class UserController extends Controller
         $reservation->save();
     
         return response()->json(['success' => true]);
-    }    
+    }
     
+    public function payForReservation($id)
+    {
+        $reservation = Reservation::with('restaurant')->findOrFail($id);
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $session = StripeSession::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'eur',
+                    'product_data' => [
+                        'name' => 'Table Reservation at ' . $reservation->restaurant->title,
+                    ],
+                    'unit_amount' => $reservation->price * 100,
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => route('reservations.success', ['reservation' => $reservation->id]),
+            'cancel_url' => route('reservations.cancel', ['reservation' => $reservation->id]),
+        ]);
+
+        return redirect($session->url);
+    }
+
+    public function paymentSuccess($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        // Update reservation status
+        $reservation->update(['status' => 'paid']);
+
+        // Create payment
+        Payment::create([
+            'reservation_id' => $reservation->id,
+            'price' => $reservation->price,
+            'status' => 'paid',
+            'created_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('user.reservations')->with('success', 'Reservation paid successfully.');
+    }
+    
+    public function paymentCancel($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+        $reservation->update(['status' => 'cancelled']);
+
+        return redirect()->route('user.reservations')->with('error', 'Payment was cancelled.');
+    }
+
 }

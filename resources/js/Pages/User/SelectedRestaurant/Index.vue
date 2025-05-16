@@ -3,6 +3,7 @@ import NoHeroLayout from '../Layouts/NoHeroLayout.vue'
 import { ref, onMounted, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 
 const props = defineProps({
   restaurant: Object,
@@ -17,6 +18,7 @@ const selectedTableIndex = ref(null)
 const layoutCanvasWidth = 800
 const layoutCanvasHeight = 600
 const scale = 1
+const selectedSeats = props.layout.tables[selectedTableIndex.value]?.seats || 1
 
 // New date logic with Riga timezone
 const rigaNow = new Date().toLocaleString('en-CA', {
@@ -56,38 +58,43 @@ const reserveTable = async () => {
     return
   }
 
+  const selectedSeats = props.layout.tables[selectedTableIndex.value]?.seats || 1
+
   try {
-    await router.post('/reservations/store', {
+    const response = await axios.post('/reservations/store', {
       restaurant_id: props.restaurant.id,
       table_number: selectedTableIndex.value + 1,
       date: selectedDate.value,
       time: selectedTime.value,
       price: props.restaurant.price,
-    }, {
-      onSuccess: (page) => {
-        Swal.fire({
-          toast: true,
-          icon: 'success',
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 2000,
-          title: page.props.flash?.success || 'Reservation successful!',
-        })
+      seats: selectedSeats, // ✅ added
+    })
 
-        selectedTableIndex.value = null
-        selectedTime.value = ''
-        selectedDate.value = today
-      }
-    })
+    const reservationId = response.data.reservation_id
+    window.location.href = `/reservations/pay/${reservationId}`
+
   } catch (error) {
-    console.error(error)
-    Swal.fire({
-      toast: true,
-      icon: 'error',
-      position: 'top-end',
-      showConfirmButton: false,
-      title: 'Reservation failed!',
-    })
+    if (error.response && error.response.status === 422) {
+      console.error('Validation errors:', error.response.data.errors)
+
+      const messages = Object.values(error.response.data.errors)
+        .flat()
+        .join('\n')
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: messages,
+      })
+    } else {
+      console.error(error)
+      Swal.fire({
+        toast: true,
+        icon: 'error',
+        position: 'top-end',
+        title: 'Reservation failed!',
+      })
+    }
   }
 }
 

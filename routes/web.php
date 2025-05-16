@@ -52,6 +52,9 @@ Route::post('/contacts/store', [UserController::class, 'storeContacts'])->name('
 Route::post('/reservations/store', [UserController::class, 'storeReservation'])->name('user.reservations.storeReservation');
 Route::get('/reservations', [UserController::class, 'reservations'])->name('user.reservations');
 Route::post('/reservations/{id}/cancel', [UserController::class, 'cancelReservation']);
+Route::get('/reservations/pay/{reservation}', [UserController::class, 'payForReservation'])->name('user.reservations.pay');
+Route::get('/reservations/success/{reservation}', [UserController::class, 'paymentSuccess'])->name('reservations.success');
+Route::get('/reservations/cancel/{reservation}', [UserController::class, 'paymentCancel'])->name('reservations.cancel');
 
 
 // Dashboard example
