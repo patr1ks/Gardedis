@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 
 defineProps({
     canResetPassword: {
@@ -24,6 +25,16 @@ const form = useForm({
 
 const submit = () => {
     form.post(route('login'), {
+        onSuccess: (page) => {
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                title: page.props.flash?.success || 'Logged in successfully!',
+            });
+        },
         onFinish: () => form.reset('password'),
     });
 };

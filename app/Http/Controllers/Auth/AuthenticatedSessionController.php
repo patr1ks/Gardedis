@@ -31,11 +31,14 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
+    
         $request->session()->regenerate();
-
+    
+        // 🔽 Add this line to flash a success message
+        session()->flash('success', 'Logged in successfully!');
+    
         return redirect()->intended(RouteServiceProvider::HOME);
-    }
+    }    
 
     /**
      * Destroy an authenticated session.

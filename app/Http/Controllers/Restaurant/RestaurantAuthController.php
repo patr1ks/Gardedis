@@ -16,14 +16,14 @@ class RestaurantAuthController extends Controller
 
     public function login(Request $request)
     {
-        // Add your login logic here
-        // Check if the user is an restaurant owner and redirect accordingly
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'isRestaurant' => true])) {
-            return redirect()->route('restaurantOwner.dashboard'); // Redirect to the restaurant dashboard
+            session()->flash('success', 'Logged in successfully!');
+            
+            return redirect()->route('restaurantOwner.dashboard');
         }
-
+    
         return redirect()->route('restaurantOwner.login')->with('error', 'Invalid credentials.');
-    }
+    }    
 
     public function logout(Request $request)
     {        

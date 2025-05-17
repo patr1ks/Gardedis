@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 
 const form = useForm({
     name: '',
@@ -15,6 +16,16 @@ const form = useForm({
 
 const submit = () => {
     form.post(route('register'), {
+        onSuccess: (page) => {
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                title: page.props.flash?.success || 'Registration successful!',
+            });
+        },
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };

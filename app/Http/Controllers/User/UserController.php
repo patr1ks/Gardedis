@@ -49,7 +49,7 @@ class UserController extends Controller
 
     public function restaurants()
     {
-        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->limit(8)->get();
+        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->get();
         return Inertia::render('User/Restaurant', [
             'restaurants' => $restaurants,
             'canLogin' => app('router')->has('login'),
@@ -61,7 +61,7 @@ class UserController extends Controller
     
     public function events()
     {
-        $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->limit(8)->get();
+        $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->get();
         return Inertia::render('User/Event', [
             'events' => $events, 
             'canLogin' => app('router')->has('login'),
