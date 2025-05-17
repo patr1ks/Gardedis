@@ -11,21 +11,30 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $payments = Payment::get();
-        return Inertia::render('Admin/Payment/Index', ['payment' => $payments]);
-    }    
+        // Eager load user and reservation + restaurant
+        $payments = Payment::with(['user', 'reservation.restaurant'])
+            ->latest()
+            ->get();
+
+        return Inertia::render('Admin/Payment/Index', [
+            'payments' => $payments,
+        ]);
+    }
 
     public function destroy($id)
     {
-        $payment = Payment::findOrFail($id)->delete();
-        return redirect()->route('admin.payments.index')->with('success', 'Payment deleted successfully');
+        Payment::findOrFail($id)->delete();
+
+        return redirect()->route('admin.payments.index')
+            ->with('success', 'Payment deleted successfully');
     }
 
     public function showData($id)
     {
-        $payment = Payment::with('user', 'restaurant')->findOrFail($id); // adjust relationships if needed
-        return response()->json(['payment' => $payment]);
-    }
+        $payment = Payment::with(['user', 'reservation.restaurant'])->findOrFail($id);
 
-    
+        return response()->json([
+            'payment' => $payment
+        ]);
+    }
 }

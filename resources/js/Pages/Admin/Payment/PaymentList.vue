@@ -3,221 +3,23 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
-// import VueSweetalert2 from 'vue-sweetalert2';
+import axios from 'axios'
 
-
-defineProps({
-    restaurants: Array
-})
-
-// const restaurants = usePage().props.restaurants;
-const payments = usePage().props.payments;
+const payments = usePage().props.payments
 
 const selectedPayment = ref(null)
 const showPaymentDialog = ref(false)
 
-const isAddRestaurant = ref(false);
-const editMode = ref(false);
-const dialogVisible = ref(false);
-
-// upload image
-const restaurantImages = ref([]);
-const dialogImageUrl = ref('');
-const handleFileChange = (file, fileList) => {
-    restaurantImages.value = fileList.map(f => ({
-        name: f.name,
-        url: f.url,
-        raw: f.raw || f,
-    }));
-};
-
-
-const handlePictureCardPreview = (file) => {
-  dialogImageUrl.value = file.url
-  dialogVisible.value = true
-}
-
-const handleRemove = (file) => {
-  console.log(file)
-}
-
-// restaurant data
-const id = ref('');
-const title = ref('');
-const description = ref('');
-const price = ref('');
-const published = ref('');
-const restaurant_images = ref([]);
-const category_id = ref('');
-
-// Open the add modal
-const openAddModal = () => {
-    isAddRestaurant.value = true;
-    dialogVisible.value = true;
-    editMode.value = false;
-    
-}  
-const AddRestaurant = async () => {
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
-
-    // Append images correctly
-    for (const image of restaurantImages.value) {
-        if (image.raw) {
-            formData.append('restaurant_images[]', image.raw);
-        }
-    }
-
-    try {
-        await router.post('restaurants/store', formData, {
-            // headers: {
-            //     'Content-Type': 'multipart/form-data'
-            // },
-            onSuccess: (page) => {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash?.success || 'Restaurant added successfully!',
-                });
-                dialogVisible.value = false;
-                resetFormData();
-                router.push('/admin/restaurants');
-            },
-        });
-    } catch (err) {
-        console.error(err);
-    }
-};
-
-
-// reset data after adding restaurant
-const resetFormData = () => {
-    id.value = '';
-    title.value = '';
-    description.value = '';
-    price.value = '';
-    category_id.value = '';
-    restaurantImages.value = [];
-    dialogImageUrl.value = '';
-}
-
-const openEditModal = (restaurant) => {
-    console.log(restaurant);
-    editMode.value = true;
-    dialogVisible.value = true;
-    isAddRestaurant.value = false;
-
-    //update data
-    id.value = restaurant.id;
-    title.value = restaurant.title;
-    description.value = restaurant.description;
-    price.value = restaurant.price;
-    category_id.value = restaurant.category_id;
-    restaurant_images.value = restaurant.restaurant_images;
-
-}
-
-//delete image
-const deleteImage = async (rimage, index) => {
-    try {
-        await router.delete('/admin/restaurants/image/'+rimage.id, {
-            onSuccess: (page) => {
-                restaurant_images.value.splice(index, 1);
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
-    } catch (error) {
-        console.log(error);
-        
-    }
-}
-
-// update restaurant
-const updateRestaurant = async () => {
-    const formData = new FormData();
-    formData.append('title', title.value);
-    formData.append('description', description.value);
-    formData.append('price', price.value);
-    formData.append('category_id', category_id.value);
-    formData.append('_method', 'PUT');
-
-    for (const image of restaurantImages.value) {
-        formData.append('restaurant_images[]', image.raw);
-    }
-
-    try {
-        await router.post('restaurants/update/'+id.value, formData, {
-            onSuccess: (page) => {
-                dialogVisible.value = false;
-                resetFormData();
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
-    } catch (error) {
-        
-    }
-};
-
-//delete restaurant
-const deleteRestaurant = async (restaurant, index) => {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                router.delete('restaurants/destroy/'+restaurant.id, {
-                    onSuccess: (page) => {
-                        this.delete(restaurant, index);
-                        Swal.fire({
-                            toast: true,
-                            icon: 'success',
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            title: page.props.flash.success
-                        });
-                    }
-                })
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    })
-}
-
+// Open payment details modal
 const openPaymentDetails = async (id) => {
-    try {
-        const response = await axios.get(`/admin/payments/show-data/${id}`)
-        selectedPayment.value = response.data.payment
-        showPaymentDialog.value = true
-    } catch (error) {
-        console.error('Failed to load payment data:', error)
-    }
+  try {
+    const response = await axios.get(`/admin/payments/show-data/${id}`)
+    selectedPayment.value = response.data.payment
+    showPaymentDialog.value = true
+  } catch (error) {
+    console.error('Failed to load payment data:', error)
+  }
 }
-
-
 </script>
 
 <template>
@@ -324,117 +126,53 @@ const openPaymentDetails = async (id) => {
                         </div>
                     </form>
                 </div>
-                <!-- <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                    <button type="button" @click="openAddModal" class="flex items-center justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
-                        </svg>
-                        Add restaurant
-                    </button>
-                    <div class="flex items-center space-x-3 w-full md:w-auto">
-                        <button id="actionsDropdownButton" data-dropdown-toggle="actionsDropdown" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
-                            <svg class="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                            </svg>
-                            Actions
-                        </button>
-                        <div id="actionsDropdown" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="actionsDropdownButton">
-                                <li>
-                                    <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Mass Edit</a>
-                                </li>
-                            </ul>
-                            <div class="py-1">
-                                <a href="#" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete all</a>
-                            </div>
-                        </div>
-                        <button id="filterDropdownButton" data-dropdown-toggle="filterDropdown" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="h-4 w-4 mr-2 text-gray-400" viewbox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
-                            </svg>
-                            Filter
-                            <svg class="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                            </svg>
-                        </button>
-                        <div id="filterDropdown" class="z-10 hidden w-48 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
-                            <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">Choose brand</h6>
-                            <ul class="space-y-2 text-sm" aria-labelledby="filterDropdownButton">
-                                <li class="flex items-center">
-                                    <input id="apple" type="checkbox" value="" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                    <label for="apple" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Apple (56)</label>
-                                </li>
-                                <li class="flex items-center">
-                                    <input id="fitbit" type="checkbox" value="" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                    <label for="fitbit" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Microsoft (16)</label>
-                                </li>
-                                <li class="flex items-center">
-                                    <input id="razor" type="checkbox" value="" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                    <label for="razor" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Razor (49)</label>
-                                </li>
-                                <li class="flex items-center">
-                                    <input id="nikon" type="checkbox" value="" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                    <label for="nikon" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">Nikon (12)</label>
-                                </li>
-                                <li class="flex items-center">
-                                    <input id="benq" type="checkbox" value="" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                    <label for="benq" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">BenQ (74)</label>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div> -->
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-        <tr>
-            <th scope="col" class="px-4 py-3">Reservation</th>
-            <th scope="col" class="px-4 py-3">Price</th>
-            <th scope="col" class="px-4 py-3">Status</th>
-            <th scope="col" class="px-4 py-3">
-                <span class="sr-only">Actions</span>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="payment in payments" :key="payment.id" class="border-b dark:border-gray-700">
-            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ payment.reservation_id }}</th>
-            <!-- <td class="px-4 py-3">{{restaurant.category.name}}</td> -->
-            <td class="px-4 py-3">{{payment.price}}</td>
-            <td class="px-4 py-3">{{payment.status}}</td>
-            <td class="px-4 py-3">{{payment.type}}</td> 
-            <!-- <td class="px-4 py-3">
-                <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
-                <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
-                </td> -->
-            <td class="px-4 py-3 flex items-center justify-end">
-                <button :id="'dropdown-button-' + payment.id" :data-dropdown-toggle="'dropdown-' + payment.id"
-                    class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
-                    type="button">
-                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                </button>
-                <div :id="'dropdown-' + payment.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + payment.id">
-                        <li>
-                            <a href="#" @click.prevent="openPaymentDetails(payment.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                        </li>
-                        <li>
-                            <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->
-                            <a href="#" @click="openEditModal(restaurant)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                        <th class="px-4 py-3">Restaurant</th>
+                        <th class="px-4 py-3">User Email</th>
+                        <th class="px-4 py-3">Price (€)</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                        v-for="(payment, index) in payments"
+                        :key="payment.id"
+                        class="border-b dark:border-gray-700"
+                        >
+                        <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                            {{ payment.reservation?.restaurant?.title || '—' }}
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ payment.user?.email || '—' }}
+                        </td>
+                        <td class="px-4 py-3">
+                            €{{ payment.price }}
+                        </td>
+                        <td class="px-4 py-3 capitalize">
+                            {{ payment.status }}
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ new Date(payment.created_at).toLocaleDateString() }}
+                        </td>
 
-                        </li>
-                    </ul>
-                    <div class="py-1">
-                        <a href="#" @click="deleteRestaurant(payment, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                        <td class="px-4 py-3 text-right">
+                            <button
+                            class="text-blue-600 hover:underline"
+                            @click.prevent="openPaymentDetails(payment.id)"
+                            >
+                            Details
+                            </button>
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+
 
             </div>
             <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
