@@ -114,6 +114,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::delete('/restaurants/image/{id}', [RestaurantController::class, 'deleteImage'])->name('admin.restaurants.image.delete');
     Route::delete('/restaurants/destroy/{id}', [RestaurantController::class, 'destroy'])->name('admin.restaurants.destroy');
     Route::get('/restaurants/show-data/{id}', [RestaurantController::class, 'showData'])->name('admin.restaurants.showData');
+    Route::post('/restaurants/{id}/toggle', [RestaurantController::class, 'togglePublished'])->name('admin.restaurants.toggle');
+
 });
 
 // Restaurant Owner routes

@@ -15,16 +15,22 @@ class RestaurantController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::with('categories', 'restaurant_images', 'user')->get(); // updated relation
+        $restaurants = Restaurant::with('categories', 'restaurant_images', 'user')->get();
         $categories = Category::get();
-        $users = User::get();
-
+    
+        $usedUserIds = Restaurant::pluck('owner')->toArray();
+    
+        $users = User::where('isAdmin', 0)
+            ->where('isRestaurant', 1)
+            ->whereNotIn('id', $usedUserIds)
+            ->get(['id', 'email']);
+    
         return Inertia::render('Admin/Restaurant/Index', [
             'restaurants' => $restaurants,
             'categories' => $categories,
             'users' => $users,
         ]);
-    }
+    }    
 
     public function store(Request $request)
     {
@@ -127,4 +133,13 @@ class RestaurantController extends Controller
             'users' => $users,
         ]);
     }
+
+    public function togglePublished($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+        $restaurant->published = !$restaurant->published;
+        $restaurant->save();
+    
+        return redirect()->back()->with('success', 'Restaurant publish status updated.');
+    }    
 }

@@ -47,7 +47,7 @@ const description = ref('');
 const price = ref('');
 const published = ref('');
 const restaurant_images = ref([]);
-const category_ids = ref([]); // <-- changed from single value to array
+const category_ids = ref([]);
 const owner = ref('');
 
 const openAddModal = () => {
@@ -103,7 +103,7 @@ const resetFormData = () => {
   uploadKey.value++;
 
   if (isAddRestaurant.value) {
-    restaurant_images.value = []; // clear only when adding
+    restaurant_images.value = [];
   }
 };
 
@@ -215,6 +215,17 @@ const openRestaurantDetails = async (id) => {
     } catch (error) {
         console.error('Failed to load restaurant data:', error);
     }
+};
+
+const togglePublished = async (restaurant) => {
+  try {
+    const response = await axios.post(`/admin/restaurants/${restaurant.id}/toggle`);
+    
+    // Update the local restaurant list without reloading
+    restaurant.published = restaurant.published === 1 ? 0 : 1;
+  } catch (error) {
+    console.error('Failed to toggle published status', error);
+  }
 };
 </script>
 
@@ -398,9 +409,13 @@ const openRestaurantDetails = async (id) => {
             <td class="px-4 py-3">{{restaurant.description}}</td>
             <td class="px-4 py-3">{{restaurant.price}}</td> 
             <td class="px-4 py-3">
-                <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
-                <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
-                </td>
+                <button v-if="restaurant.published == 0" @click="togglePublished(restaurant)" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                    Published
+                </button>
+                <button v-else @click="togglePublished(restaurant)" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                    Unpublished 
+                </button>
+            </td>   
             <td class="px-4 py-3 flex items-center justify-end">
                 <button :id="'dropdown-button-' + restaurant.id" :data-dropdown-toggle="'dropdown-' + restaurant.id"
                     class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
