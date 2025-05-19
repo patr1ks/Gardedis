@@ -19,8 +19,16 @@ class UserController extends Controller
 {
     public function index()
     {
-        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->limit(5)->get();
-        $events = Event::with('restaurant', 'event_images')->orderBy('id', 'desc')->limit(5)->get();
+        $restaurants = Restaurant::with('categories', 'restaurant_images')
+            ->where('published', 0)
+            ->orderBy('id', 'desc')
+            ->limit(5)
+            ->get();
+    
+        $events = Event::with('restaurant', 'event_images')
+            ->orderBy('id', 'desc')
+            ->limit(5)
+            ->get();
     
         return Inertia::render('User/Index', [
             'restaurants' => $restaurants,
@@ -30,7 +38,7 @@ class UserController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }
+    }    
     
 
     public function restaurant($id)
@@ -49,7 +57,11 @@ class UserController extends Controller
 
     public function restaurants()
     {
-        $restaurants = Restaurant::with('categories', 'restaurant_images')->orderBy('id', 'desc')->get();
+        $restaurants = Restaurant::with('categories', 'restaurant_images')
+            ->where('published', 0)
+            ->orderBy('id', 'desc')
+            ->get();
+    
         return Inertia::render('User/Restaurant', [
             'restaurants' => $restaurants,
             'canLogin' => app('router')->has('login'),
@@ -57,7 +69,7 @@ class UserController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }
+    }    
     
     public function events()
     {
