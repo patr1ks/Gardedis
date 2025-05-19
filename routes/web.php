@@ -21,6 +21,7 @@ use App\Http\Controllers\Restaurant\MenuController;
 use App\Http\Controllers\Restaurant\OwnerRestaurantController;
 use App\Http\Controllers\Restaurant\OwnerLayoutController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Restaurant\OwnerEventController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +145,12 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::get('/layout/{id}', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.show');
     Route::post('/layout/store', [OwnerLayoutController::class, 'store'])->name('restaurantOwner.layout.store');
     Route::get('/layout-json', [OwnerLayoutController::class, 'show'])->name('restaurantOwner.layout.json');
+
+    Route::get('/events', [OwnerEventController::class, 'index'])->name('restaurantOwner.events.index');
+    Route::post('/events/store', [OwnerEventController::class, 'store'])->name('restaurantOwner.events.store');
+    Route::delete('/events/image/{id}', [OwnerEventController::class, 'deleteImage'])->name('restaurantOwner.events.image.delete');
+    Route::delete('/events/destroy/{id}', [OwnerEventController::class, 'destroy'])->name('restaurantOwner.events.destroy');
+    Route::get('/events/show-data/{id}', [OwnerEventController::class, 'showData'])->name('restaurantOwner.events.showData');
 });
 
 require __DIR__.'/auth.php';
