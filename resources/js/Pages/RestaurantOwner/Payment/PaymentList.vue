@@ -13,7 +13,7 @@ const showPaymentDialog = ref(false)
 // Open payment details modal
 const openPaymentDetails = async (id) => {
   try {
-    const response = await axios.get(`/admin/payments/show-data/${id}`)
+    const response = await axios.get(`/restaurant-owner/payments/show-data/${id}`)
     selectedPayment.value = response.data.payment
     showPaymentDialog.value = true
   } catch (error) {

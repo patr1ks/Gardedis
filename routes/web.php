@@ -22,6 +22,7 @@ use App\Http\Controllers\Restaurant\OwnerRestaurantController;
 use App\Http\Controllers\Restaurant\OwnerLayoutController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Restaurant\OwnerEventController;
+use App\Http\Controllers\Restaurant\OwnerPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -151,6 +152,10 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::delete('/events/image/{id}', [OwnerEventController::class, 'deleteImage'])->name('restaurantOwner.events.image.delete');
     Route::delete('/events/destroy/{id}', [OwnerEventController::class, 'destroy'])->name('restaurantOwner.events.destroy');
     Route::get('/events/show-data/{id}', [OwnerEventController::class, 'showData'])->name('restaurantOwner.events.showData');
+
+    Route::get('/payments', [OwnerPaymentController::class, 'index'])->name('restaurantOwner.payments.index');
+    Route::delete('/payments/destroy/{id}', [OwnerPaymentController::class, 'destroy'])->name('restaurantOwner.payments.destroy');
+    Route::get('/payments/show-data/{id}', [OwnerPaymentController::class, 'showData'])->name('restaurantOwner.payments.showData');
 });
 
 require __DIR__.'/auth.php';
