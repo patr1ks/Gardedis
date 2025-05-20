@@ -25,8 +25,8 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Nav Links -->
             <div class="hidden sm:flex space-x-4">
-                <Link :href="route('dashboard')" :class="['text-sm font-medium block py-2 px-3 rounded-sm md:p-0',route().current('dashboard')? 'text-blue-700 dark:text-blue-500': 'text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700']">
-                    Dashboard
+                <Link :href="route('profile.edit')" :class="['text-sm font-medium block py-2 px-3 rounded-sm md:p-0',route().current('dashboard')? 'text-blue-700 dark:text-blue-500': 'text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700']">
+                    Profile
                 </Link>
             </div>
             <div class="hidden sm:flex space-x-4">
@@ -61,7 +61,6 @@ const showingNavigationDropdown = ref(false);
               </template>
 
               <template #content>
-                <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
                 <DropdownLink :href="route('logout')" method="post" as="button">Log Out</DropdownLink>
               </template>
             </Dropdown>
