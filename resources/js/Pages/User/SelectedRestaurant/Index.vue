@@ -257,6 +257,24 @@ onMounted(() => {
                   ></canvas>
                 </div>
               </div>
+                          <!-- Menu Section -->
+            <div v-if="restaurant.menus?.length" class="mt-12">
+              <h3 class="text-lg font-semibold mb-4 text-center">Menu</h3>
+              <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div
+                  v-for="(item, index) in restaurant.menus"
+                  :key="index"
+                  class="border rounded-lg p-4 shadow hover:shadow-md transition"
+                >
+                  <div class="flex justify-between items-start mb-1">
+                    <h4 class="text-lg font-bold text-gray-800">{{ item.name }}</h4>
+                    <span v-if="item.isSpecial" class="text-sm text-red-600 font-semibold">Special offer</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">{{ item.description }}</p>
+                  <p class="text-base font-semibold text-indigo-600">{{ item.price }} €</p>
+                </div>
+              </div>
+            </div>
             </div>
 
             <!-- Right: Time and Reserve -->

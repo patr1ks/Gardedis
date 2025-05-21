@@ -52,4 +52,9 @@ class Restaurant extends Model
     {
         return $this->belongsTo(User::class, 'owner');
     }
+
+    public function menus()
+    {
+        return $this->hasMany(Menu::class);
+    }
 }

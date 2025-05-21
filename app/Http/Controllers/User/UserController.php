@@ -43,7 +43,7 @@ class UserController extends Controller
 
     public function restaurant($id)
     {
-        $restaurant = Restaurant::with('categories', 'restaurant_images')->findOrFail($id);
+        $restaurant = Restaurant::with(['categories', 'restaurant_images', 'menus'])->findOrFail($id);
     
         return Inertia::render('User/SelectedRestaurant/Index', [
             'restaurant' => $restaurant,
@@ -53,7 +53,7 @@ class UserController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }      
+    }         
 
     public function restaurants()
     {
@@ -244,5 +244,4 @@ class UserController extends Controller
 
         return redirect()->route('user.reservations')->with('error', 'Payment was cancelled.');
     }
-
 }
