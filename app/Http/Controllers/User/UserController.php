@@ -167,10 +167,23 @@ class UserController extends Controller
         ]);        
     
         return response()->json(['reservation_id' => $reservation->id]);
-        
-
     }
-        
+
+    public function getTableReservations(Request $request)
+    {
+        $request->validate([
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'table_number' => 'required|integer',
+            'date' => 'required|date',
+        ]);
+
+        $reservations = Reservation::where('restaurant_id', $request->restaurant_id)
+            ->where('table_number', $request->table_number)
+            ->where('reservation_date', $request->date)
+            ->pluck('time');
+
+        return response()->json($reservations);
+    }   
 
     public function reservations()
     {

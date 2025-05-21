@@ -57,7 +57,7 @@ Route::post('/reservations/{id}/cancel', [UserController::class, 'cancelReservat
 Route::get('/reservations/pay/{reservation}', [UserController::class, 'payForReservation'])->name('user.reservations.pay');
 Route::get('/reservations/success/{reservation}', [UserController::class, 'paymentSuccess'])->name('reservations.success');
 Route::get('/reservations/cancel/{reservation}', [UserController::class, 'paymentCancel'])->name('reservations.cancel');
-
+Route::post('/api/table-reservations', [UserController::class, 'getTableReservations']);
 
 // Dashboard example
 Route::get('/dashboard', function () {

@@ -4,6 +4,7 @@ import { ref, onMounted, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import axios from 'axios'
+import { defineProps, watch } from 'vue'
 
 const props = defineProps({
   restaurant: Object,
@@ -42,6 +43,14 @@ const selectedTableLabel = computed(() => {
   return selectedTableIndex.value !== null
     ? `Selected table: ${selectedTableIndex.value + 1}`
     : 'No table selected'
+})
+
+const timeSlotStates = computed(() => {
+  const states = {}
+  for (const time of timeSlots) {
+    states[time] = reservedTimes.value.includes(time) ? 'reserved' : 'available'
+  }
+  return states
 })
 
 const reserveTable = async () => {
@@ -191,6 +200,26 @@ onMounted(() => {
   tableImage.onload = drawLayout
   if (tableImage.complete) drawLayout()
 })
+
+const reservedTimes = ref([])
+
+watch([selectedTableIndex, selectedDate], async () => {
+  if (selectedTableIndex.value !== null && selectedDate.value) {
+    try {
+      const response = await axios.post('/api/table-reservations', {
+        restaurant_id: props.restaurant.id,
+        table_number: selectedTableIndex.value + 1,
+        date: selectedDate.value
+      })
+      reservedTimes.value = response.data
+    } catch (error) {
+      reservedTimes.value = []
+      console.error('Failed to load reserved times', error)
+    }
+  } else {
+    reservedTimes.value = []
+  }
+})
 </script>
 
 <template>
@@ -303,7 +332,9 @@ onMounted(() => {
                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
                   <option value="" disabled>Select time</option>
-                  <option v-for="time in timeSlots" :key="time" :value="time">{{ time }}</option>
+                  <option v-for="time in timeSlots" :key="time" :value="time" :class="{'text-green-600': timeSlotStates[time] === 'available','text-red-600': timeSlotStates[time] === 'reserved'}":disabled="timeSlotStates[time] === 'reserved'">
+                    {{ time }}
+                  </option>
                 </select>
               </div>
 
