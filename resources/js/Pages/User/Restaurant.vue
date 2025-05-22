@@ -3,22 +3,22 @@ import NoHeroLayout from "./Layouts/NoHeroLayout.vue";
 import { Link } from '@inertiajs/vue3'
 
 defineProps({
-    restaurants: Array,
+  restaurants: Array,
 });
 </script>
 
 <template>
   <NoHeroLayout>
-    <div class="bg-white">
+    <div class="bg-white dark:bg-gray-900 transition-colors duration-300">
       <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900">Restaurant list</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Restaurant list</h2>
 
         <div class="mt-6 flex flex-col gap-y-6">
           <Link
             v-for="restaurant in restaurants"
             :key="restaurant.id"
             :href="route('user.restaurant', restaurant.id)"
-            class="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+            class="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
           >
             <!-- Restaurant image or fallback -->
             <img

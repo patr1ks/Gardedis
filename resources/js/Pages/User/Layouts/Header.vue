@@ -1,23 +1,45 @@
 <script setup>
-import { usePage } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue'
+import { usePage, Link } from '@inertiajs/vue3'
+import { SunIcon, MoonIcon } from '@heroicons/vue/24/solid'
+import { ref } from 'vue'
 
-const canLogin = usePage().props.canLogin;
-const canRegister = usePage().props.canRegister;
-const auth = usePage().props.auth;
-const event = usePage().props.event;
-const authUser = usePage().props.auth.user;
+const canLogin = usePage().props.canLogin
+const canRegister = usePage().props.canRegister
+const auth = usePage().props.auth
+const authUser = usePage().props.auth.user
 
+const isDark = ref(false)
+
+const toggleDarkMode = () => {
+  document.documentElement.classList.toggle('dark')
+  isDark.value = document.documentElement.classList.contains('dark')
+  localStorage.setItem('darkMode', isDark.value)
+}
+
+onMounted(() => {
+  isDark.value = localStorage.getItem('darkMode') === 'true'
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  }
+})
 </script>
 
 <template>
-    <nav class="bg-white border-gray-200 dark:bg-gray-900">
+    <nav class="bg-white border-gray-200 dark:bg-gray-900 transition-colors duration-300">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
     <a :href="route('user.home')" class="flex items-center space-x-3 rtl:space-x-reverse">
         <svg height="35px" viewBox="0 0 512 512" width="35px" xmlns="http://www.w3.org/2000/svg"><title/><path d="M357.57,223.94a79.48,79.48,0,0,0,56.58-23.44l77-76.95c6.09-6.09,6.65-16,.85-22.39a16,16,0,0,0-23.17-.56L400.2,169.18a12.29,12.29,0,0,1-17.37,0c-4.79-4.78-4.53-12.86.25-17.64l68.33-68.33a16,16,0,0,0-.56-23.16A15.62,15.62,0,0,0,440.27,56a16.71,16.71,0,0,0-11.81,4.9l-68.27,68.26a12.29,12.29,0,0,1-17.37,0c-4.78-4.78-4.53-12.86.25-17.64L411.4,43.21a16,16,0,0,0-.56-23.16A15.62,15.62,0,0,0,400.26,16a16.73,16.73,0,0,0-11.81,4.9L311.5,97.85a79.49,79.49,0,0,0-23.44,56.59v8.23A16,16,0,0,1,283.37,174l-35.61,35.62a4,4,0,0,1-5.66,0L68.82,36.33a16,16,0,0,0-22.58-.06C31.09,51.28,23,72.47,23,97.54c-.1,41.4,21.66,89,56.79,124.08l85.45,85.45A64.79,64.79,0,0,0,211,326a64,64,0,0,0,16.21-2.08,16.24,16.24,0,0,1,4.07-.53,15.93,15.93,0,0,1,10.83,4.25l11.39,10.52a16.12,16.12,0,0,1,4.6,11.23v5.54a47.73,47.73,0,0,0,13.77,33.65l90.05,91.57.09.1a53.29,53.29,0,0,0,75.36-75.37L302.39,269.9a4,4,0,0,1,0-5.66L338,228.63a16,16,0,0,1,11.32-4.69Z"/><path d="M211,358a97.32,97.32,0,0,1-68.36-28.25l-13.86-13.86a8,8,0,0,0-11.3,0l-85,84.56c-15.15,15.15-20.56,37.45-13.06,59.29a30.63,30.63,0,0,0,1.49,3.6C31,484,50.58,496,72,496a55.68,55.68,0,0,0,39.64-16.44L225,365.66a4.69,4.69,0,0,0,1.32-3.72l0-.26a4.63,4.63,0,0,0-5.15-4.27A97.09,97.09,0,0,1,211,358Z"/></svg>
         <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Gardēdis</span>
     </a>
     <div v-if="canLogin" class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+        <div class="px-2">
+            <button @click="toggleDarkMode" class="relative w-12 h-12 rounded-full flex items-center justify-center transition bg-white dark:bg-gray-800 shadow-md">
+                <transition name="fade" mode="out-in">
+                    <component :is="isDark ? MoonIcon : SunIcon" :key="isDark" class="w-6 h-6 text-yellow-400 dark:text-gray-200"/>
+                </transition>
+            </button>
+        </div>
         <button v-if="auth.user" type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
             <span class="sr-only">Open user menu</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 rounded-full bg-white">
@@ -61,7 +83,7 @@ const authUser = usePage().props.auth.user;
         </button>
     </div>
     <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-        <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 transition-colors duration-300">
         <li>
             <Link :href="route('user.home')" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
                 Home
@@ -92,14 +114,18 @@ const authUser = usePage().props.auth.user;
                 Contacts
             </Link>
         </li>
-        <!-- <li>
-            <a href="#" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Pricing</a>
-        </li>
-        <li>
-            <a href="#" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-        </li> -->
         </ul>
     </div>
     </div>
     </nav>
 </template>
+
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>
