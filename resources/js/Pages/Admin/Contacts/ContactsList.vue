@@ -76,21 +76,22 @@ const openContactDetails = async (id) => {
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
         <el-dialog
-            v-model="showdialogVisible"
-            title="Contacts Details"
-            width="500"
-            :before-close="() => showdialogVisible = false"
+        v-model="showdialogVisible"
+        title="Contacts Details"
+        width="500"
+        :before-close="() => showdialogVisible = false"
+        class="dark-dialog"
         >
+        <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <div v-if="selectedContact">
-                <p><strong>First name:</strong> {{ selectedContact.first_name }}</p>
-                <p><strong>Last name:</strong> {{ selectedContact.last_name }}</p>
-                <p><strong>Email:</strong> {{ selectedContact.email }}</p>
-                <p><strong>Phone:</strong> {{ selectedContact.telephone }}</p>
-                <p><strong>Message:</strong> {{ selectedContact.message }}</p>
-
+            <p><strong>First name:</strong> {{ selectedContact.first_name }}</p>
+            <p><strong>Last name:</strong> {{ selectedContact.last_name }}</p>
+            <p><strong>Email:</strong> {{ selectedContact.email }}</p>
+            <p><strong>Phone:</strong> {{ selectedContact.telephone }}</p>
+            <p><strong>Message:</strong> {{ selectedContact.message }}</p>
             </div>
+        </div>
         </el-dialog>
-
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->

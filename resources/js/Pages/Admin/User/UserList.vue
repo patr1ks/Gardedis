@@ -135,12 +135,14 @@ const deleteUser = async (user) => {
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
             <!-- dialog for adding or editing event -->
-        <el-dialog
+            <el-dialog
             v-model="dialogVisible"
             :title="editMode ? 'Edit user' : 'Add user'"
             width="500"
             :before-close="handleClose"
-        > 
+            class="dark-dialog"
+            >
+            <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <!-- form start -->
             <form @submit.prevent="editMode ? updateUser():AddUser()" class="max-w-md mx-auto">
             <!-- Name -->
@@ -172,13 +174,18 @@ const deleteUser = async (user) => {
 
             <!-- Role -->
             <div class="relative z-0 w-full mb-5 group">
-                <label for="role_select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select role</label>
-                <select id="role_select" v-model="selectedRole"
-                class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+            <label for="role_select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select role</label>
+            <select
+                id="role_select"
+                v-model="selectedRole"
+                class="block w-full text-sm rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:ring-blue-500 focus:border-blue-500
+                    dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
+                    py-2.5 px-3"
+            >
                 <option value="" disabled>Select role</option>
                 <option value="admin">Admin</option>
                 <option value="restaurant">Restaurant</option>
-                </select>
+            </select>
             </div>
 
             <button type="submit"
@@ -186,9 +193,8 @@ const deleteUser = async (user) => {
                 Submit
             </button>
             </form>
-
             <!-- form end -->
-        
+        </div>
         </el-dialog>
 
         <el-dialog

@@ -233,12 +233,14 @@ const togglePublished = async (restaurant) => {
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
             <!-- dialog for adding or editing restaurant -->
-        <el-dialog
+            <el-dialog
             v-model="dialogVisible"
             :title="editMode ? 'Edit restaurant' : 'Add restaurant'"
             width="500"
             :before-close="handleClose"
-        >
+            class="dark-dialog"
+            >
+            <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <!-- form start -->
             <form @submit.prevent="editMode ? updateRestaurant():AddRestaurant()" class="max-w-md mx-auto">
             <div class="relative z-0 w-full mb-5 group">
@@ -316,15 +318,17 @@ const togglePublished = async (restaurant) => {
             <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
             </form>
             <!-- form end -->
-        
+            </div>
         </el-dialog>
         <!-- previed restaurant details -->
         <el-dialog
-            v-model="showdialogVisible"
-            title="Restaurant Details"
-            width="500"
-            :before-close="() => showdialogVisible = false"
+        v-model="showdialogVisible"
+        title="Restaurant Details"
+        width="500"
+        :before-close="() => showdialogVisible = false"
+        class="dark-dialog"
         >
+        <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <div v-if="selectedRestaurant">
                 <p><strong>Title:</strong> {{ selectedRestaurant.title }}</p>
                 <p><strong>Description:</strong> {{ selectedRestaurant.description }}</p>
@@ -351,6 +355,7 @@ const togglePublished = async (restaurant) => {
                     />
                 </div>
             </div>
+        </div>
         </el-dialog>
 
 
@@ -486,8 +491,18 @@ const togglePublished = async (restaurant) => {
 </template>
 
 <style scoped>
-.el-image-viewer__btn--rotate-left,
-.el-image-viewer__btn--rotate-right {
-  display: none !important;
+.dark .el-dialog {
+  background-color: #1f2937 !important; /* Tailwind dark:bg-gray-800 */
+  color: #fff;
+}
+
+.dark .el-dialog__header {
+  background-color: #1f2937 !important;
+  color: #fff;
+  border-bottom: 1px solid #374151; /* dark:border-gray-700 */
+}
+
+.dark .el-overlay {
+  background-color: rgba(0, 0, 0, 0.5); /* dark backdrop */
 }
 </style>

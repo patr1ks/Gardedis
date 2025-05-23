@@ -225,89 +225,132 @@ const openEventDetails = async (id) => {
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
             <!-- dialog for adding or editing event -->
-        <el-dialog
+            <el-dialog
             v-model="dialogVisible"
             :title="editMode ? 'Edit event' : 'Add event'"
             width="500"
             :before-close="handleClose"
-        > 
-            <!-- form start -->
-            <form @submit.prevent="editMode ? updateEvent():AddEvent()" class="max-w-md mx-auto">
-            <!-- restaurant select -->
-            <div class="relative z-0 w-full mb-5 group">
-                <label for="underline_select">Select restaurant</label>
-                <select id="underline_select" v-model="restaurant_id" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-                    <option v-for="restaurant in restaurants" :key="restaurant.id" :value="restaurant.id" selected>{{restaurant.title}}</option>
-                </select>
-            </div>
-            <div class="relative z-0 w-full mb-5 group">
-                <input v-model="title" type="text" name="floating_title" id="floating_title" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                <label for="floating_title" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Title</label>
-            </div>
-            <div>
-                <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
-                <textarea id="message" v-model="description" rows="4" class=" block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write description"></textarea>
-            </div>
-            <el-date-picker
-                v-model="event_date"
-                type="date"
-                placeholder="Select date"
-                format="DD.MM.YYYY"
-                value-format="DD.MM.YYYY"
-                class="w-full mt-4"
-            />
+            class="dark-dialog"
+            >
+            <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
+                <form @submit.prevent="editMode ? updateEvent() : AddEvent()" class="max-w-md mx-auto">
 
-            <!-- image upload -->
-            <div class="grid md:gap-6">
+                <!-- Restaurant Select -->
                 <div class="relative z-0 w-full mb-5 group">
+                    <label for="underline_select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select restaurant</label>
+                    <select
+                    id="underline_select"
+                    v-model="restaurant_id"
+                    class="block w-full text-sm rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm
+                            focus:ring-blue-500 focus:border-blue-500
+                            dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
+                            py-2.5 px-3"
+                    >
+                    <option v-for="restaurant in restaurants" :key="restaurant.id" :value="restaurant.id">
+                        {{ restaurant.title }}
+                    </option>
+                    </select>
+                </div>
+
+                <!-- Title -->
+                <div class="relative z-0 w-full mb-5 group">
+                    <input
+                    v-model="title"
+                    type="text"
+                    id="floating_title"
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none
+                            dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    placeholder=" "
+                    required
+                    />
+                    <label for="floating_title" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform
+                            -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-blue-600 peer-focus:dark:text-blue-500
+                            peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                    Title
+                    </label>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-5">
+                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                    <textarea
+                    id="message"
+                    v-model="description"
+                    rows="4"
+                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                            focus:ring-blue-500 focus:border-blue-500
+                            dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Write description"
+                    ></textarea>
+                </div>
+
+                <!-- Date Picker -->
+                <el-date-picker
+                    v-model="event_date"
+                    type="date"
+                    placeholder="Select date"
+                    format="DD.MM.YYYY"
+                    value-format="DD.MM.YYYY"
+                    class="w-full mt-4"
+                />
+
+                <!-- Upload -->
+                <div class="relative z-0 w-full mb-5 group mt-5">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
                     <el-upload
-                        v-model:file-list="eventImages"
-                        list-type="picture-card"
-                        :on-preview="handlePictureCardPreview"
-                        :on-remove="handleRemove"
-                        :on-change="handleFileChange"
-                        accept="image/*"
-                        :auto-upload="false"
+                    v-model:file-list="eventImages"
+                    list-type="picture-card"
+                    :on-preview="handlePictureCardPreview"
+                    :on-remove="handleRemove"
+                    :on-change="handleFileChange"
+                    accept="image/*"
+                    :auto-upload="false"
                     >
-                        <el-icon><Plus /></el-icon>
+                    <el-icon><Plus /></el-icon>
                     </el-upload>
-
                 </div>
-            </div>
 
-            <!-- list of images for selected product -->
-             <div class="flex flex-nowrap mb-8">
-                <div v-for="(eimage, index) in event_images" :key="eimage.id" class="relative w-32 h-32">
-                    <img class="w-24 h-24 rounded-sm" :src="`/${eimage.image}`" alt="">
+                <!-- Existing images -->
+                <div class="flex flex-nowrap mb-8">
+                    <div v-for="(eimage, index) in event_images" :key="eimage.id" class="relative w-32 h-32">
+                    <img class="w-24 h-24 rounded-sm" :src="`/${eimage.image}`" alt="" />
                     <span class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full">
-                        <span @click="deleteImage(eimage, index)" class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer">x
-
+                        <span
+                        @click="deleteImage(eimage, index)"
+                        class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                        >
+                        x
                         </span>
                     </span>
+                    </div>
                 </div>
-             </div>
 
-            <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-            </form>
-            <!-- form end -->
-        
-        </el-dialog>
+                <!-- Submit -->
+                <button
+                    type="submit"
+                    class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
+                        font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center
+                        dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Submit
+                </button>
+                </form>
+            </div>
+            </el-dialog>
 
-
-        <el-dialog
+            <el-dialog
             v-model="showEventDialog"
             title="Event Details"
             width="500"
             :before-close="() => showEventDialog = false"
+            class="dark-dialog"
             >
-            <div v-if="selectedEvent">
+            <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
+                <div v-if="selectedEvent">
                 <p><strong>Title:</strong> {{ selectedEvent.title }}</p>
                 <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
-                <!-- <p><strong>Start Time:</strong> {{ new Date(selectedEvent.start_time).toLocaleString() }}</p>
-                <p><strong>End Time:</strong> {{ new Date(selectedEvent.end_time).toLocaleString() }}</p> -->
                 <p><strong>Restaurant:</strong> {{ selectedEvent.restaurant?.title }}</p>
-                
+
                 <div v-if="selectedEvent?.event_images?.length">
                     <p><strong>Images:</strong></p>
                     <el-image
@@ -320,9 +363,9 @@ const openEventDetails = async (id) => {
                     fit="cover"
                     />
                 </div>
+                </div>
             </div>
-        </el-dialog>
-
+            </el-dialog>
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
@@ -369,10 +412,6 @@ const openEventDetails = async (id) => {
             <td class="px-4 py-3">{{event.title}}</td>
             <td class="px-4 py-3">{{event.description}}</td>
             <td class="px-4 py-3">{{event.event_date}}</td> 
-            <!-- <td class="px-4 py-3">
-                <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
-                <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
-                </td> -->
             <td class="px-4 py-3 flex items-center justify-end">
                 <button :id="'dropdown-button-' + event.id" :data-dropdown-toggle="'dropdown-' + event.id"
                     class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
