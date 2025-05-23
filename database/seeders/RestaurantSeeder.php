@@ -13,12 +13,5 @@ class RestaurantSeeder extends Seeder
      */
     public function run(): void
     {
-        Restaurant::create([
-            'title' => 'Restorāns 1',
-            'description' => 'Restorāns 1 apraksts',
-            'published' => 1,
-            'price' => 10.00,
-            'category_id' => 1, 
-            ]);
     }
 }

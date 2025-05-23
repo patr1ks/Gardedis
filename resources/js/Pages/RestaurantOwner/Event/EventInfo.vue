@@ -38,7 +38,7 @@ const handleFileChange = (file, fileList) => {
 const handlePictureCardPreview = (file) => {
   dialogImageUrl.value = file.url
   dialogVisible.value = true
-}
+} // Ensure this closing bracket matches the opening one for the function or block
 
 const handleRemove = (file) => {
   console.log(file)
