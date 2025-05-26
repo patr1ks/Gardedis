@@ -23,6 +23,7 @@ use App\Http\Controllers\Restaurant\OwnerLayoutController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Restaurant\OwnerEventController;
 use App\Http\Controllers\Restaurant\OwnerPaymentController;
+use App\Http\Controllers\Admin\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,7 +80,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function ()
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+        
+    Route::get('/dashboard', function () {return Inertia::render('Admin/Dashboard');})->name('admin.dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'index'])->name('admin.dashboard.data');
 
     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
