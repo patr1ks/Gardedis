@@ -24,6 +24,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Restaurant\OwnerEventController;
 use App\Http\Controllers\Restaurant\OwnerPaymentController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Restaurant\RestaurantDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,7 +133,9 @@ Route::group(['prefix' => 'restaurant-owner', 'middleware' => 'redirectRestauran
 });
 
 Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->group(function() {
-    Route::get('/dashboard', [RestaurantOwnerController::class, 'index'])->name('restaurantOwner.dashboard');
+    // Route::get('/dashboard', [RestaurantOwnerController::class, 'index'])->name('restaurantOwner.dashboard');
+    Route::get('/dashboard', function () {return Inertia::render('RestaurantOwner/Dashboard');})->name('restaurantOwner.dashboard');
+    Route::get('/dashboard/data', [RestaurantDashboardController::class, 'index'])->name('restaurantOwner.dashboard.data');
 
     Route::get('/menu', [MenuController::class, 'index'])->name('restaurantOwner.menu.index');
     Route::post('/menu/store', [MenuController::class, 'store'])->name('restaurantOwner.menu.store');
