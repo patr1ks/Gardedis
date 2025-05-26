@@ -230,7 +230,7 @@ const openEventDetails = async (id) => {
             :title="editMode ? 'Edit event' : 'Add event'"
             width="500"
             :before-close="handleClose"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
                 <form @submit.prevent="editMode ? updateEvent() : AddEvent()" class="max-w-md mx-auto">
@@ -343,7 +343,7 @@ const openEventDetails = async (id) => {
             title="Event Details"
             width="500"
             :before-close="() => showEventDialog = false"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
                 <div v-if="selectedEvent">

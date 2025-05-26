@@ -1,5 +1,6 @@
 <template>
-  <div class="relative w-full h-full flex flex-col items-start p-4 space-y-3">
+  <div class="relative w-full h-full flex flex-col items-start p-4 space-y-3 dark:bg-gray-900 dark:text-white">
+
     <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-2">
       <button :class="mode === 'table' ? activeBtn : defaultBtn" @click="mode = 'table'">Add Table</button>
@@ -18,21 +19,31 @@
 
     <!-- Seat Editor Panel -->
     <div v-if="editingTable" class="absolute top-4 right-6 z-20">
-      <div class="bg-white border border-gray-400 rounded shadow-md p-4">
+      <div class="bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-600 rounded shadow-md p-4">
         <h2 class="font-bold mb-2">Edit Table #{{ editingIndex + 1 }}</h2>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Seats:
           <input
             type="number"
             v-model.number="seatInput"
             min="1"
             max="20"
-            class="ml-2 w-16 border rounded px-2 py-1"
+            class="ml-2 w-16 border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
         </label>
         <div class="flex gap-2 mt-2">
-          <button class="px-3 py-1 text-sm border rounded bg-blue-700 text-white hover:bg-blue-800" @click="saveSeatCount">Save</button>
-          <button class="px-3 py-1 text-sm border rounded bg-gray-100 hover:bg-gray-200" @click="editingTable = null">Close</button>
+          <button
+            class="px-3 py-1 text-sm border rounded bg-blue-700 text-white hover:bg-blue-800"
+            @click="saveSeatCount"
+          >
+            Save
+          </button>
+          <button
+            class="px-3 py-1 text-sm border rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+            @click="editingTable = null"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -45,7 +56,7 @@
       @mousedown="handleMouseDown"
       @mousemove="handleMouseMove"
       @mouseup="handleMouseUp"
-      class="border border-gray-300 rounded shadow"
+      class="border border-gray-300 dark:border-gray-600 rounded shadow bg-white dark:bg-gray-800"
     />
   </div>
 </template>

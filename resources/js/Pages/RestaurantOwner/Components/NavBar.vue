@@ -1,8 +1,30 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
+import { ref, onMounted } from 'vue';
+import { SunIcon, MoonIcon } from '@heroicons/vue/24/solid' 
 
 const authUser = usePage().props.auth.user;
+
+const isDark = ref(false)
+const dropdownVisible = ref(false)
+
+const toggleDarkMode = () => {
+  document.documentElement.classList.toggle('dark')
+  isDark.value = document.documentElement.classList.contains('dark')
+  localStorage.setItem('darkMode', isDark.value.toString())
+}
+
+const toggleDropdown = () => {
+  dropdownVisible.value = !dropdownVisible.value
+}
+
+onMounted(() => {
+  isDark.value = localStorage.getItem('darkMode') === 'true'
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  }
+})
 </script>
 
 <template>
@@ -49,6 +71,11 @@ const authUser = usePage().props.auth.user;
           </Link>
         </div>
         <div class="flex items-center lg:order-2">
+          <div class="px-2">
+            <button @click="toggleDarkMode" class="w-10 h-10 mr-4 rounded-full flex items-center justify-center bg-white dark:bg-gray-700 shadow-md transition">
+              <component :is="isDark ? MoonIcon : SunIcon" class="w-6 h-6 text-yellow-400 dark:text-gray-200" />
+            </button>
+          </div>
           <!-- Dropdown menu -->
           <button
             type="button"

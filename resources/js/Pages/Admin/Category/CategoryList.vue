@@ -156,7 +156,7 @@ const openCategoryDetails = async (id) => {
             :title="editMode ? 'Edit category' : 'Add category'"
             width="500"
             :before-close="handleClose"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
                 <form @submit.prevent="editMode ? updateCategory() : AddCategory()" class="max-w-md mx-auto">
@@ -198,7 +198,7 @@ const openCategoryDetails = async (id) => {
             title="Category Details"
             width="400"
             :before-close="() => showCategoryDialog = false"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
                 <div v-if="selectedCategory">

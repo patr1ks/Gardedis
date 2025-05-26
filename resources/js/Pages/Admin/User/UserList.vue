@@ -140,7 +140,7 @@ const deleteUser = async (user) => {
             :title="editMode ? 'Edit user' : 'Add user'"
             width="500"
             :before-close="handleClose"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <!-- form start -->

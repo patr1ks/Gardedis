@@ -80,7 +80,7 @@ const openContactDetails = async (id) => {
         title="Contacts Details"
         width="500"
         :before-close="() => showdialogVisible = false"
-        class="dark-dialog"
+        class="dark:bg-gray-900 dark:text-white"
         >
         <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <div v-if="selectedContact">

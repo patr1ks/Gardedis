@@ -176,69 +176,81 @@ const openMenuDetails = async (id) => {
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
             <!-- dialog for adding or editing menu -->
-        <el-dialog
-            v-model="dialogVisible"
-            :title="editMode ? 'Edit menu item' : 'Add menu item'"
-            width="500"
-            :before-close="handleClose"
-        >
-            <!-- form start -->
-            <form @submit.prevent="editMode ? updateMenu() : AddMenu()" class="max-w-md mx-auto">
-                
-                <!-- Restaurant ID (hidden or select if needed) -->
-                <input v-model="restaurant_id" type="hidden">
+            <el-dialog
+                v-model="dialogVisible"
+                :title="editMode ? 'Edit menu item' : 'Add menu item'"
+                width="500"
+                :before-close="handleClose"
+                class="dark:bg-gray-900 dark:text-white"
+            >
+                <!-- form start -->
+                <form @submit.prevent="editMode ? updateMenu() : AddMenu()" class="max-w-md mx-auto">
+                    
+                    <input v-model="restaurant_id" type="hidden">
 
-                <!-- Name -->
-                <div class="relative z-0 w-full mb-5 group">
-                    <input v-model="name" type="text" id="name" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                    <label for="name" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 peer-focus:text-blue-600">Name</label>
+                    <!-- Name -->
+                    <div class="relative z-0 w-full mb-5 group">
+                        <input v-model="name" type="text" id="name"
+                            class="block py-2.5 px-0 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            placeholder=" " required />
+                        <label for="name"
+                            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 peer-focus:text-blue-600 dark:peer-focus:text-blue-400 duration-300 transform -translate-y-6 scale-75 top-3">
+                            Name
+                        </label>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="relative z-0 w-full mb-5 group">
+                        <textarea v-model="description" id="description" rows="3"
+                            class="block py-2.5 px-0 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            placeholder=" " required></textarea>
+                        <label for="description"
+                            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 peer-focus:text-blue-600 dark:peer-focus:text-blue-400 duration-300 transform -translate-y-6 scale-75 top-3">
+                            Description
+                        </label>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="relative z-0 w-full mb-5 group">
+                        <input v-model="price" type="number" step="0.1" min="0" id="price"
+                            class="block py-2.5 px-0 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            placeholder=" " required />
+                        <label for="price"
+                            class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 peer-focus:text-blue-600 dark:peer-focus:text-blue-400 duration-300 transform -translate-y-6 scale-75 top-3">
+                            Price
+                        </label>
+                    </div>
+
+                    <!-- isSpecial Checkbox -->
+                    <div class="flex items-center mb-5">
+                        <input v-model="isSpecial" type="checkbox" id="isSpecial" class="mr-2">
+                        <label for="isSpecial" class="text-sm text-gray-700 dark:text-gray-300">Special Menu Item</label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                        class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-600 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+                        Submit
+                    </button>
+                </form>
+            </el-dialog>
+
+            <el-dialog
+                v-model="showMenuDialog"
+                title="Menu Details"
+                width="400"
+                :before-close="() => showMenuDialog = false"
+                class="dark:bg-gray-900 dark:text-white"
+            >
+                <div v-if="selectedMenu">
+                    <p><strong>Name:</strong> {{ selectedMenu.name }}</p>
+                    <p><strong>Description:</strong> {{ selectedMenu.description }}</p>
+                    <p><strong>Price:</strong> €{{ selectedMenu.price }}</p>
+                    <p><strong>Special:</strong> {{ selectedMenu.isSpecial ? 'Yes' : 'No' }}</p>
+                    <p><strong>Created at:</strong> {{ new Date(selectedMenu.created_at).toLocaleString() }}</p>
+                    <p><strong>Updated at:</strong> {{ new Date(selectedMenu.updated_at).toLocaleString() }}</p>
                 </div>
-
-                <!-- Description -->
-                <div class="relative z-0 w-full mb-5 group">
-                    <textarea v-model="description" id="description" rows="3" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required></textarea>
-                    <label for="description" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 peer-focus:text-blue-600">Description</label>
-                </div>
-
-                <!-- Price -->
-                <div class="relative z-0 w-full mb-5 group">
-                    <input v-model="price" type="number" step="0.1" min="0" id="price" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                    <label for="price" class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 peer-focus:text-blue-600">
-                        Price
-                    </label>
-                </div>
-
-
-                <!-- isSpecial Checkbox -->
-                <div class="flex items-center mb-5">
-                    <input v-model="isSpecial" type="checkbox" id="isSpecial" class="mr-2">
-                    <label for="isSpecial" class="text-sm text-gray-700">Special Menu Item</label>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Submit</button>
-            </form>
-            <!-- form end -->
-        
-        </el-dialog>
-
-        <el-dialog
-            v-model="showMenuDialog"
-            title="Menu Details"
-            width="400"
-            :before-close="() => showMenuDialog = false"
-        >
-            <div v-if="selectedMenu">
-                <p><strong>Name:</strong> {{ selectedMenu.name }}</p>
-                <p><strong>Description:</strong> {{ selectedMenu.description }}</p>
-                <p><strong>Price:</strong> €{{ selectedMenu.price }}</p>
-                <p><strong>Special:</strong> {{ selectedMenu.isSpecial ? 'Yes' : 'No' }}</p>
-                <p><strong>Created at:</strong> {{ new Date(selectedMenu.created_at).toLocaleString() }}</p>
-                <p><strong>Updated at:</strong> {{ new Date(selectedMenu.updated_at).toLocaleString() }}</p>
-            </div>
-        </el-dialog>
-
-
+            </el-dialog>
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->

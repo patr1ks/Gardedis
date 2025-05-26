@@ -231,14 +231,14 @@ const togglePublished = async (restaurant) => {
 
 
 <template>
-    <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+    <section class="bg-gray-50 dark:bg-gray-900 dark:text-white  p-3 sm:p-5">
             <!-- dialog for adding or editing restaurant -->
             <el-dialog
             v-model="dialogVisible"
             :title="editMode ? 'Edit restaurant' : 'Add restaurant'"
             width="500"
             :before-close="handleClose"
-            class="dark-dialog"
+            class="dark:bg-gray-900 dark:text-white"
             >
             <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
             <!-- form start -->
