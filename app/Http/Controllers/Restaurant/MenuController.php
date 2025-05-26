@@ -12,14 +12,31 @@ class MenuController extends Controller
 {
     public function index()
     {
-        $menu = Menu::get();
+        $userId = auth()->id();
+    
+        $restaurant = Restaurant::where('owner', $userId)->first();
+    
+        if (!$restaurant) {
+            return Inertia::render('RestaurantOwner/Menu/Index', ['menu' => []]);
+        }   
+    
+        $menu = Menu::where('restaurant_id', $restaurant->id)->get();
+    
         return Inertia::render('RestaurantOwner/Menu/Index', ['menu' => $menu]);
-    }
+    }    
 
     public function store(Request $request)
     {
+        $userId = auth()->id();
+    
+        $restaurant = Restaurant::where('owner', $userId)->first();
+    
+        if (!$restaurant) {
+            return redirect()->back()->with('error', 'No restaurant found for this user.');
+        }
+    
         $menu = new Menu();
-        $menu->restaurant_id = 1; // Test value (put your test restaurant id here)
+        $menu->restaurant_id = $restaurant->id;
         $menu->name = $request->name;
         $menu->description = $request->description;
         $menu->price = $request->price;
@@ -27,7 +44,7 @@ class MenuController extends Controller
         $menu->save();
     
         return redirect()->route('restaurantOwner.menu.index')->with('success', 'Menu item created successfully');
-    }    
+    }      
     
     
     public function update(Request $request, $id)
