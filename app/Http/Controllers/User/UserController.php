@@ -14,6 +14,7 @@ use App\Models\Reservation;
 use App\Models\Payment;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
+use App\Models\Category;
 
 class UserController extends Controller
 {
@@ -62,14 +63,17 @@ class UserController extends Controller
             ->orderBy('id', 'desc')
             ->get();
     
+        $categories = Category::orderBy('name')->get(); // Fetch all categories
+    
         return Inertia::render('User/Restaurant', [
             'restaurants' => $restaurants,
+            'categories' => $categories, // ✅ Now passed to Vue
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
-    }    
+    }   
     
     public function events()
     {
