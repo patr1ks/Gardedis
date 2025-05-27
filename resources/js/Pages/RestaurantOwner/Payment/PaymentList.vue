@@ -20,6 +20,24 @@ const openPaymentDetails = async (id) => {
     console.error('Failed to load payment data:', error)
   }
 }
+
+const dropdownOpen = ref(null)
+const statusOptions = ['pending', 'paid', 'cancelled']
+
+const toggleDropdown = (id) => {
+  dropdownOpen.value = dropdownOpen.value === id ? null : id
+}
+
+const updateStatus = async (id, newStatus) => {
+  try {
+    await axios.put(`/restaurant-owner/payments/update-status/${id}`, { status: newStatus })
+    const payment = payments.find(p => p.id === id)
+    if (payment) payment.status = newStatus
+    dropdownOpen.value = null
+  } catch (error) {
+    console.error('Failed to update status:', error)
+  }
+}
 </script>
 
 <template>
@@ -87,34 +105,34 @@ const openPaymentDetails = async (id) => {
                             {{ payment.price }}€
                         </td>
                         <td class="px-4 py-3 capitalize">
-                            {{ payment.status }}
-                        </td>
+  <div class="relative inline-block">
+    <button
+      @click="toggleDropdown(payment.id)"
+      class="text-sm capitalize px-2 py-1 rounded border border-gray-300 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
+    >
+      {{ payment.status }}
+    </button>
+    <div
+      v-if="dropdownOpen === payment.id"
+      class="absolute z-10 mt-1 w-32 bg-white border border-gray-200 rounded shadow dark:bg-gray-800 dark:border-gray-600"
+    >
+      <ul class="text-sm text-gray-700 dark:text-gray-200">
+        <li v-for="status in statusOptions" :key="status">
+          <button
+            @click="updateStatus(payment.id, status)"
+            class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+          >
+            {{ status }}
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</td>
+
                         <td class="px-4 py-3">
                             {{ new Date(payment.created_at).toLocaleDateString() }}
                         </td>
-                        <!-- <td class="px-4 py-3 flex items-center justify-end">
-                            <button :id="'dropdown-button-' + payment.id" :data-dropdown-toggle="'dropdown-' + payment.id"
-                                class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" 
-                                type="button">
-                                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                </svg>
-                            </button>
-                            <div :id="'dropdown-' + payment.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + payment.id">
-                                    <li>
-                                        <a href="#" @click.prevent="openEventDetails(payment.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" @click="openEditModal(payment)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
-
-                                    </li>
-                                </ul>
-                                <div class="py-1">
-                                    <a href="#" @click="deleteEvent(payment, index)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
-                                </div>
-                            </div>
-                        </td> -->
                         </tr>
                     </tbody>
                 </table>
