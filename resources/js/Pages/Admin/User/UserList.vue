@@ -3,10 +3,11 @@ import { usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { computed } from 'vue';
 
-const users = ref([...usePage().props.users]);
+const currentUserId = usePage().props.auth.user.id;
+const users = ref(usePage().props.users.filter(u => u.id !== currentUserId));
 const selectedUser = ref(null);
-const showUserDialog = ref(false);
 const dialogVisible = ref(false);
 const isAddUser = ref(false);
 const editMode = ref(false);
@@ -126,11 +127,16 @@ const deleteUser = async (user) => {
         console.error('Delete failed:', err);
     }
 };
+
+const searchQuery = ref('');
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user =>
+    user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
 </script>
-
-
-
-
 
 <template>
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -197,20 +203,6 @@ const deleteUser = async (user) => {
         </div>
         </el-dialog>
 
-        <el-dialog
-        v-model="showUserDialog"
-        title="User Details"
-        width="500"
-        :before-close="() => showUserDialog = false"
-        >
-        <div v-if="selectedUser">
-            <p><strong>Name:</strong> {{ selectedUser.name }}</p>
-            <p><strong>Email:</strong> {{ selectedUser.email }}</p>
-            <p><strong>Created at:</strong> {{ new Date(selectedUser.created_at).toLocaleString() }}</p>
-        </div>
-        </el-dialog>
-
-
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -224,7 +216,7 @@ const deleteUser = async (user) => {
                                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required>
+                            <input v-model="searchQuery" type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search by name"/>
                         </div>
                     </form>
                 </div>
@@ -250,7 +242,7 @@ const deleteUser = async (user) => {
         </tr>
     </thead>
     <tbody>
-        <tr v-for="user in users" :key="user.id" class="border-b dark:border-gray-700">
+        <tr v-for="user in filteredUsers" :key="user.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ user.name }}</th>
             <td class="px-4 py-3">{{user.email}}</td>
             <td class="px-4 py-3">
@@ -270,9 +262,6 @@ const deleteUser = async (user) => {
                 <div :id="'dropdown-' + user.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + user.id">
                         <li>
-                            <a href="#" @click.prevent="openUserDetails(user.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                        </li>
-                        <li>
                             <a href="#" @click="openEditModal(user)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
                         </li>
                     </ul>
@@ -284,43 +273,7 @@ const deleteUser = async (user) => {
         </tr>
     </tbody>
 </table>
-
             </div>
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <ul class="inline-flex items-stretch -space-x-px">
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
     </section>

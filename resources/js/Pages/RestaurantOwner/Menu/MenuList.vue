@@ -1,6 +1,6 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { Plus } from '@element-plus/icons-vue';
 // import VueSweetalert2 from 'vue-sweetalert2';
@@ -12,9 +12,6 @@ defineProps({
 
 
 const menus = ref(usePage().props.menu);
-
-const selectedMenu = ref(null)
-const showMenuDialog = ref(false)
 
 const isAddMenu = ref(false);
 const editMode = ref(false);
@@ -160,16 +157,14 @@ const deleteMenu = async (menu, index) => {
     })
 }
 
+const searchQuery = ref('');
 
-const openMenuDetails = async (id) => {
-    try {
-        const response = await axios.get(`/restaurant/menu/show-data/${id}`)
-        selectedMenu.value = response.data.menu
-        showMenuDialog.value = true
-    } catch (error) {
-        console.error('Failed to load menu data:', error)
-    }
-}
+const filteredMenus = computed(() => {
+  if (!searchQuery.value) return menus.value;
+  return menus.value.filter(menu =>
+    menu.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 
 </script>
 
@@ -235,23 +230,6 @@ const openMenuDetails = async (id) => {
                 </form>
             </el-dialog>
 
-            <el-dialog
-                v-model="showMenuDialog"
-                title="Menu Details"
-                width="400"
-                :before-close="() => showMenuDialog = false"
-                class="dark:bg-gray-900 dark:text-white"
-            >
-                <div v-if="selectedMenu">
-                    <p><strong>Name:</strong> {{ selectedMenu.name }}</p>
-                    <p><strong>Description:</strong> {{ selectedMenu.description }}</p>
-                    <p><strong>Price:</strong> €{{ selectedMenu.price }}</p>
-                    <p><strong>Special:</strong> {{ selectedMenu.isSpecial ? 'Yes' : 'No' }}</p>
-                    <p><strong>Created at:</strong> {{ new Date(selectedMenu.created_at).toLocaleString() }}</p>
-                    <p><strong>Updated at:</strong> {{ new Date(selectedMenu.updated_at).toLocaleString() }}</p>
-                </div>
-            </el-dialog>
-
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
         <!-- Start coding here -->
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -265,7 +243,8 @@ const openMenuDetails = async (id) => {
                                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required>
+                            <input type="text" v-model="searchQuery" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search by name"/>
+
                         </div>
                     </form>
                 </div>
@@ -292,7 +271,7 @@ const openMenuDetails = async (id) => {
         </tr>
     </thead>
     <tbody>
-        <tr v-for="(menu, index) in menus" :key="menu.id" class="border-b dark:border-gray-700">
+        <tr v-for="(menu, index) in filteredMenus" :key="menu.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 {{ menu.name }}
             </th>
@@ -313,9 +292,6 @@ const openMenuDetails = async (id) => {
                 <div :id="'dropdown-' + menu.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + menu.id">
                         <li>
-                            <a href="#" @click.prevent="openMenuDetails(menu.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                        </li>
-                        <li>
                             <a href="#" @click="openEditModal(menu)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
                         </li>
                     </ul>
@@ -329,47 +305,6 @@ const openMenuDetails = async (id) => {
 </table>
 
             </div>
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                    Showing
-                    <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
-                    of
-                    <span class="font-semibold text-gray-900 dark:text-white">1000</span>
-                </span>
-                <ul class="inline-flex items-stretch -space-x-px">
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
     </section>

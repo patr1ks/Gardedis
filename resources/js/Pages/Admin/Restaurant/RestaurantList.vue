@@ -5,6 +5,7 @@ import { router } from '@inertiajs/vue3';
 import { Plus } from '@element-plus/icons-vue';
 import axios from 'axios';
 import { ElImage } from 'element-plus';
+import { computed } from 'vue';
 
 defineProps({
     restaurants: Array
@@ -17,7 +18,6 @@ const users = usePage().props.users;
 const isAddRestaurant = ref(false);
 const editMode = ref(false);
 const dialogVisible = ref(false);
-const showdialogVisible = ref(false);
 const selectedRestaurant = ref(null);
 const uploadKey = ref(0);
 
@@ -205,18 +205,6 @@ const deleteRestaurant = async (restaurant, index) => {
     });
 };
 
-const openRestaurantDetails = async (id) => {
-    try {
-        const response = await axios.get(`/admin/restaurants/show-data/${id}`);
-        selectedRestaurant.value = response.data.restaurant;
-        categories.value = response.data.categories;
-        user.value = response.data.user;
-        showdialogVisible.value = true;
-    } catch (error) {
-        console.error('Failed to load restaurant data:', error);
-    }
-};
-
 const togglePublished = async (restaurant) => {
   try {
     const response = await axios.post(`/admin/restaurants/${restaurant.id}/toggle`);
@@ -227,6 +215,14 @@ const togglePublished = async (restaurant) => {
     console.error('Failed to toggle published status', error);
   }
 };
+
+const searchQuery = ref('');
+
+const filteredRestaurants = computed(() => {
+  return restaurants.filter(r =>
+    r.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 </script>
 
 
@@ -320,43 +316,7 @@ const togglePublished = async (restaurant) => {
             <!-- form end -->
             </div>
         </el-dialog>
-        <!-- previed restaurant details -->
-        <el-dialog
-        v-model="showdialogVisible"
-        title="Restaurant Details"
-        width="500"
-        :before-close="() => showdialogVisible = false"
-        class="dark-dialog"
-        >
-        <div class="bg-white dark:bg-gray-800 dark:text-white p-4 rounded-lg">
-            <div v-if="selectedRestaurant">
-                <p><strong>Title:</strong> {{ selectedRestaurant.title }}</p>
-                <p><strong>Description:</strong> {{ selectedRestaurant.description }}</p>
-                <p><strong>Price:</strong> {{ selectedRestaurant.price }}</p>
-                <p><strong>Categories:</strong>
-                <span v-if="selectedRestaurant.categories?.length">
-                    <span v-for="(cat, index) in selectedRestaurant.categories" :key="cat.id">
-                    {{ cat.name }}<span v-if="index < selectedRestaurant.categories.length - 1">, </span>
-                    </span>
-                </span>
-                <span v-else>No categories</span>
-                </p>
 
-                <div v-if="selectedRestaurant?.restaurant_images?.length">
-                    <p><strong>Images:</strong></p>
-                    <el-image
-                    v-for="image in selectedRestaurant.restaurant_images"
-                    :key="image.id"
-                    :src="'/' + image.image"
-                    :preview-src-list="selectedRestaurant.restaurant_images.map(img => '/' + img.image)"
-                    :initial-index="selectedRestaurant.restaurant_images.findIndex(i => i.id === image.id)"
-                    style="width: 100px; margin-right: 10px; cursor: pointer"
-                    fit="cover"
-                    />
-                </div>
-            </div>
-        </div>
-        </el-dialog>
 
 
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -372,7 +332,7 @@ const togglePublished = async (restaurant) => {
                                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required>
+                            <input v-model="searchQuery" type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search"/>
                         </div>
                     </form>
                 </div>
@@ -400,7 +360,7 @@ const togglePublished = async (restaurant) => {
         </tr>
     </thead>
     <tbody>
-        <tr v-for="restaurant in restaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
+        <tr v-for="restaurant in filteredRestaurants" :key="restaurant.id" class="border-b dark:border-gray-700">
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ restaurant.title }}</th>
             <!-- <td class="px-4 py-3">{{restaurant.category.name}}</td> -->
             <td class="px-4 py-3">
@@ -432,9 +392,6 @@ const togglePublished = async (restaurant) => {
                 <div :id="'dropdown-' + restaurant.id" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                     <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="'dropdown-button-' + restaurant.id">
                         <li>
-                            <a href="#" @click="openRestaurantDetails(restaurant.id)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Show</a>
-                        </li>
-                        <li>
                             <!-- <button @click="openEditModal(restaurant)" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button> -->
                             <a href="#" @click="openEditModal(restaurant)" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
 
@@ -448,61 +405,8 @@ const togglePublished = async (restaurant) => {
         </tr>
     </tbody>
 </table>
-
             </div>
-            <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <ul class="inline-flex items-stretch -space-x-px">
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
     </section>
 </template>
-
-<style scoped>
-.dark .el-dialog {
-  background-color: #1f2937 !important; /* Tailwind dark:bg-gray-800 */
-  color: #fff;
-}
-
-.dark .el-dialog__header {
-  background-color: #1f2937 !important;
-  color: #fff;
-  border-bottom: 1px solid #374151; /* dark:border-gray-700 */
-}
-
-.dark .el-overlay {
-  background-color: rgba(0, 0, 0, 0.5); /* dark backdrop */
-}
-</style>
