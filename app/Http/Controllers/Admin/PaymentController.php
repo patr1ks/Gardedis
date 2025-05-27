@@ -39,16 +39,17 @@ class PaymentController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required|in:pending,paid,cancelled'
-    ]);
-
-    $payment = Payment::findOrFail($id);
-    $payment->status = $request->status;
-    $payment->save();
-
-    return response()->json(['success' => true]);
-}
+    {
+        $request->validate([
+            'status' => 'required|in:pending,paid,cancelled'
+        ]);
+    
+        $payment = Payment::findOrFail($id);
+        $payment->status = $request->status;
+    
+        $payment->save();
+    
+        return response()->json(['success' => true]);
+    }    
 
 }
