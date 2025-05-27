@@ -6,11 +6,15 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import { onMounted } from 'vue';
 
 defineProps({
     canResetPassword: Boolean,
     status: String,
 });
+
+const success = usePage().props.flash?.success || null;
+const error = usePage().props.flash?.error || null;
 
 const canRegister = usePage().props.canRegister;
 
@@ -23,16 +27,28 @@ const form = useForm({
 const submit = () => {
     form.post(route('admin.login.post'), {
         onSuccess: (page) => {
-            Swal.fire({
-                toast: true,
-                icon: 'success',
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                title: page.props.flash?.success || 'Logged in successfully!',
-            });
+            const flash = page.props?.flash || {};
+            if (flash.success) {
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    title: flash.success,
+                });
+            } else if (flash.error) {
+                Swal.fire({
+                    toast: true,
+                    icon: 'error',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    title: flash.error,
+                });
+            }
         },
-        onFinish: () => form.reset('password'),
+        onFinish: () => form.reset('password')
     });
 };
 </script>

@@ -16,14 +16,21 @@ class AdminAuthController extends Controller
 
     public function login(Request $request)
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'isAdmin' => true])) {
-            session()->flash('success', 'Logged in successfully!');
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
     
-            return redirect()->route('admin.dashboard');
+            if ($user->isAdmin) {
+                session()->flash('success', 'Logged in successfully!');
+                return redirect()->route('admin.dashboard');
+            }
+    
+            Auth::logout(); // logout non-admin
+            return back()->with('error', 'You do not have permission to access the admin panel.');
         }
     
-        return redirect()->route('admin.login')->with('error', 'Invalid credentials.');
+        return back()->with('error', 'Invalid credentials.');
     }    
+       
 
     public function logout(Request $request)
     {        

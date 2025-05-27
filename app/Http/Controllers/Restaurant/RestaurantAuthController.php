@@ -16,14 +16,20 @@ class RestaurantAuthController extends Controller
 
     public function login(Request $request)
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'isRestaurant' => true])) {
-            session()->flash('success', 'Logged in successfully!');
-            
-            return redirect()->route('restaurantOwner.dashboard');
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+    
+            if ($user->isRestaurant) {
+                session()->flash('success', 'Logged in successfully!');
+                return redirect()->route('restaurantOwner.dashboard');
+            }
+    
+            Auth::logout();
+            return back()->with('error', 'You do not have permission to access the restaurant owner panel.');
         }
     
-        return redirect()->route('restaurantOwner.login')->with('error', 'Invalid credentials.');
-    }    
+        return back()->with('error', 'Invalid credentials.');
+    }     
 
     public function logout(Request $request)
     {        
