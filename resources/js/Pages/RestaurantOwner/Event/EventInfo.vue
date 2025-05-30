@@ -119,7 +119,7 @@ const openEditModal = (event) => {
     restaurant_id.value = event.restaurant_id;
     title.value = event.title;
     description.value = event.description;
-    price.value = event.event_date;
+    event_date.value = event.event_date;
     event_images.value = event.event_images;
 
 }
@@ -348,7 +348,7 @@ const filteredEvents = computed(() => {
             <th scope="col" class="px-4 py-3">Restaurant name</th>
             <th scope="col" class="px-4 py-3">Title</th>
             <th scope="col" class="px-4 py-3">Description</th>
-            <th scope="col" class="px-4 py-3">Event date</th>
+            <th scope="col" class="px-4 py-3 w-1/6">Event date</th>
             <th scope="col" class="px-4 py-3">
                 <span class="sr-only">Actions</span>
             </th>
@@ -359,7 +359,7 @@ const filteredEvents = computed(() => {
             <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ event.restaurant.title }}</th>
             <td class="px-4 py-3">{{event.title}}</td>
             <td class="px-4 py-3">{{event.description}}</td>
-            <td class="px-4 py-3">{{event.event_date}}</td> 
+            <td class="px-4 py-3 w-1/6  ">{{event.event_date}}</td> 
             <!-- <td class="px-4 py-3">
                 <button v-if="restaurant.published == 0" type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Published</button>
                 <button v-else type="button" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Unpublished</button>
