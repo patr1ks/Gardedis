@@ -11,6 +11,7 @@ const selectedUser = ref(null);
 const dialogVisible = ref(false);
 const isAddUser = ref(false);
 const editMode = ref(false);
+const showPassword = ref(false);
 
 // user data
 const id = ref('');
@@ -64,7 +65,7 @@ const openEditModal = (user) => {
     id.value = user.id;
     name.value = user.name;
     email.value = user.email;
-    password.value = '';
+    password.value = '********';
     selectedRole.value = user.isAdmin ? 'admin' : (user.isRestaurant ? 'restaurant' : '');
     editMode.value = true;
     isAddUser.value = false;
@@ -171,12 +172,38 @@ const filteredUsers = computed(() => {
 
             <!-- Password -->
             <div class="relative z-0 w-full mb-5 group">
-                <input v-model="password" type="text" name="floating_password" id="floating_password"
-                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=" " required />
-                <label for="floating_password"
-                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+            <input
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                name="floating_password"
+                id="floating_password"
+                class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none
+                    dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer pr-10"
+                placeholder=" "
+                :required="!editMode"
+            />
+            <label for="floating_password"
+                class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0]
+                    peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
+                    peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+
+            <!-- Toggle Button -->
+            <button type="button"
+                class="absolute right-0 top-2 text-gray-500 dark:text-gray-300 px-2 focus:outline-none"
+                @click="showPassword = !showPassword"
+            >
+                <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.957 9.957 0 012.157-3.362M6.117 6.117A9.957 9.957 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.957 9.957 0 01-1.308 2.093M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                </svg>
+            </button>
             </div>
+
 
             <!-- Role -->
             <div class="relative z-0 w-full mb-5 group">
