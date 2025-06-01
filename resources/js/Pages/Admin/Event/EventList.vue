@@ -160,7 +160,7 @@ const updateEvent = async () => {
     }
 
     try {
-        await router.post('events/update/'+id.value, formData, {
+        await router.post('events/' + id.value, formData, {
             onSuccess: (page) => {
                 dialogVisible.value = false;
                 resetFormData();
@@ -288,7 +288,7 @@ const filteredEvents = computed(() => {
                     type="date"
                     placeholder="Select date"
                     format="DD.MM.YYYY"
-                    value-format="DD.MM.YYYY"
+                    value-format="YYYY-MM-DD"
                     class="w-full mt-4"
                 />
 
@@ -296,15 +296,17 @@ const filteredEvents = computed(() => {
                 <div class="relative z-0 w-full mb-5 group mt-5">
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Images</label>
                     <el-upload
-                    v-model:file-list="eventImages"
-                    list-type="picture-card"
-                    :on-preview="handlePictureCardPreview"
-                    :on-remove="handleRemove"
-                    :on-change="handleFileChange"
-                    accept="image/*"
-                    :auto-upload="false"
-                    >
-                    <el-icon><Plus /></el-icon>
+                        v-model:file-list="eventImages"
+                        list-type="picture-card"
+                        :on-preview="handlePictureCardPreview"
+                        :on-remove="handleRemove"
+                        :on-change="handleFileChange"
+                        accept="image/*"
+                        :auto-upload="false"
+                        multiple
+                        :limit="10"
+                        >
+                        <el-icon><Plus /></el-icon>
                     </el-upload>
                 </div>
 

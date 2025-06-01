@@ -26,7 +26,7 @@ class EventController extends Controller
         $event = new Event();
         $event->title = $request->title;
         $event->description = $request->description;
-        $event->event_date = Carbon::createFromFormat('d.m.Y', $request->event_date)->format('Y-m-d');
+        $event->event_date = Carbon::createFromFormat('Y-m-d', $request->event_date)->format('Y-m-d');
         $event->restaurant_id = $request->restaurant_id;
         $event->save();
     
@@ -56,7 +56,7 @@ class EventController extends Controller
 
     $event->title = $request->title;
     $event->description = $request->description;
-    $event->event_date = Carbon::createFromFormat('d.m.Y', $request->event_date)->format('Y-m-d');
+    $event->event_date = Carbon::createFromFormat('Y-m-d', $request->event_date)->format('Y-m-d');
     $event->restaurant_id = $request->restaurant_id;
     $event->save();
 

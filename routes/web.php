@@ -96,6 +96,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::delete('/events/image/{id}', [EventController::class, 'deleteImage'])->name('admin.events.image.delete');
     Route::delete('/events/destroy/{id}', [EventController::class, 'destroy'])->name('admin.events.destroy');
     Route::get('/events/show-data/{id}', [EventController::class, 'showData'])->name('admin.events.showData');
+    Route::put('events/{id}', [EventController::class, 'update']);
 
     Route::get('/forms', [FormController::class, 'index'])->name('admin.forms.index');
     Route::delete('/forms/destroy/{id}', [FormController::class, 'destroy'])->name('admin.forms.destroy');
