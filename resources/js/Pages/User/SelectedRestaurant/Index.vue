@@ -224,60 +224,55 @@ watch([selectedTableIndex, selectedDate], async () => {
 
 <template>
   <NoHeroLayout>
-    <div class="bg-white">
+    <div class="bg-white dark:bg-gray-900">
       <div class="pt-6">
-<!-- Image Gallery -->
-<div v-if="restaurant.restaurant_images.length" class="w-full text-center">
-  <div class="relative h-56 md:h-96">
-    <div
-      v-for="(image, index) in restaurant.restaurant_images"
-      :key="index"
-      :class="[ 
-        'absolute inset-0 transition-opacity duration-700', 
-        index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0' 
-      ]"
-    >
-      <el-image
-        style="width: 100%; height: 100%; object-fit: contain"
-        :src="`/${image.image}`"
-        :preview-src-list="restaurant.restaurant_images.map(img => `/${img.image}`)"
-        :initial-index="index"
-        fit="contain"
-      />
-    </div>
-  </div>
 
-  <!-- Prev/Next Buttons -->
-  <div class="flex justify-center pt-4 space-x-4">
-    <button
-      @click="prevImage"
-      class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
-      aria-label="Previous"
-    >
-      &lt;
-    </button>
-    <button
-      @click="nextImage"
-      class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-blue-600 hover:text-white transition"
-      aria-label="Next"
-    >
-      &gt;
-    </button>
-  </div>
-</div>
+        <!-- Image Gallery -->
+        <div v-if="restaurant.restaurant_images.length" class="w-full text-center">
+          <div class="relative h-56 md:h-96">
+            <div
+              v-for="(image, index) in restaurant.restaurant_images"
+              :key="index"
+              :class="[
+                'absolute inset-0 transition-opacity duration-700',
+                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              ]"
+            >
+              <el-image
+                style="width: 100%; height: 100%; object-fit: contain"
+                :src="`/${image.image}`"
+                :preview-src-list="restaurant.restaurant_images.map(img => `/${img.image}`)"
+                :initial-index="index"
+                fit="contain"
+              />
+            </div>
+          </div>
 
+          <div class="flex justify-center pt-4 space-x-4">
+            <button
+              @click="prevImage"
+              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-200 hover:bg-blue-600 hover:text-white transition"
+              aria-label="Previous"
+            >&lt;</button>
+            <button
+              @click="nextImage"
+              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-200 hover:bg-blue-600 hover:text-white transition"
+              aria-label="Next"
+            >&gt;</button>
+          </div>
+        </div>
 
-        <!-- Restaurant Info -->
+        <!-- Restaurant Info & Layout -->
         <div class="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-16 lg:pb-24">
           <div class="grid lg:grid-cols-3 gap-x-8">
-            <!-- Left: Info and Canvas -->
-            <div class="lg:col-span-2 border-r pr-8">
-              <h1 class="text-3xl font-bold text-gray-900">{{ restaurant.title }}</h1>
-              <p class="mt-4 text-gray-700">{{ restaurant.description }}</p>
+            <!-- Left -->
+            <div class="lg:col-span-2 border-r border-gray-300 dark:border-gray-600 pr-8">
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ restaurant.title }}</h1>
+              <p class="mt-4 text-gray-700 dark:text-gray-300">{{ restaurant.description }}</p>
 
               <div v-if="layout && (layout.tables?.length || layout.walls?.length)" class="mt-10">
-                <h3 class="text-lg font-semibold mb-4 text-center">Layout Preview</h3>
-                <div class="w-full border rounded shadow bg-white overflow-x-auto">
+                <h3 class="text-lg font-semibold mb-4 text-center text-gray-800 dark:text-white">Layout Preview</h3>
+                <div class="w-full border border-gray-300 dark:border-gray-600 rounded shadow dark:shadow-md bg-white dark:bg-gray-800 overflow-x-auto">
                   <canvas
                     ref="layoutCanvas"
                     :width="layoutCanvasWidth"
@@ -286,53 +281,61 @@ watch([selectedTableIndex, selectedDate], async () => {
                   ></canvas>
                 </div>
               </div>
-                          <!-- Menu Section -->
-            <div v-if="restaurant.menus?.length" class="mt-12">
-              <h3 class="text-lg font-semibold mb-4 text-center">Menu</h3>
-              <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <div
-                  v-for="(item, index) in restaurant.menus"
-                  :key="index"
-                  class="border rounded-lg p-4 shadow hover:shadow-md transition"
-                >
-                  <div class="flex justify-between items-start mb-1">
-                    <h4 class="text-lg font-bold text-gray-800">{{ item.name }}</h4>
-                    <span v-if="item.isSpecial" class="text-sm text-red-600 font-semibold">Special offer</span>
+
+              <!-- Menu -->
+              <div v-if="restaurant.menus?.length" class="mt-12">
+                <h3 class="text-lg font-semibold mb-4 text-center text-gray-800 dark:text-white">Menu</h3>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div
+                    v-for="(item, index) in restaurant.menus"
+                    :key="index"
+                    class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg p-4 shadow hover:shadow-md transition"
+                  >
+                    <div class="flex justify-between items-start mb-1">
+                      <h4 class="text-lg font-bold text-gray-800 dark:text-white">{{ item.name }}</h4>
+                      <span v-if="item.isSpecial" class="text-sm text-red-500 font-semibold">Special offer</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ item.description }}</p>
+                    <p class="text-base font-semibold text-indigo-600 dark:text-indigo-400">{{ item.price }} €</p>
                   </div>
-                  <p class="text-sm text-gray-600 mb-2">{{ item.description }}</p>
-                  <p class="text-base font-semibold text-indigo-600">{{ item.price }} €</p>
                 </div>
               </div>
             </div>
-            </div>
 
-            <!-- Right: Time and Reserve -->
+            <!-- Right -->
             <div class="lg:col-span-1 mt-6">
-              <p class="text-3xl text-gray-900">{{ restaurant.price }} €</p>
+              <p class="text-3xl text-gray-900 dark:text-white">{{ restaurant.price }} €</p>
 
               <div class="mt-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedTableLabel }}</p>
-                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Choose Date</label>
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ selectedTableLabel }}</p>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Choose Date</label>
                 <input
                   type="date"
-                  id="date"
                   v-model="selectedDate"
                   :min="today"
                   :disabled="selectedTableIndex === null"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  class="block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 
               <div class="mt-4">
-                <label for="timeSelect" class="block text-sm font-medium text-gray-700 mb-2">Choose Time</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Choose Time</label>
                 <select
-                  id="timeSelect"
                   v-model="selectedTime"
                   :disabled="selectedTableIndex === null"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  class="block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 >
                   <option value="" disabled>Select time</option>
-                  <option v-for="time in timeSlots" :key="time" :value="time" :class="{'text-green-600': timeSlotStates[time] === 'available','text-red-600': timeSlotStates[time] === 'reserved'}":disabled="timeSlotStates[time] === 'reserved'">
+                  <option
+                    v-for="time in timeSlots"
+                    :key="time"
+                    :value="time"
+                    :class="{
+                      'text-green-600': timeSlotStates[time] === 'available',
+                      'text-red-600': timeSlotStates[time] === 'reserved'
+                    }"
+                    :disabled="timeSlotStates[time] === 'reserved'"
+                  >
                     {{ time }}
                   </option>
                 </select>
@@ -341,7 +344,7 @@ watch([selectedTableIndex, selectedDate], async () => {
               <button
                 @click="reserveTable"
                 :disabled="selectedTableIndex === null || !selectedTime"
-                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
               >
                 Reserve
               </button>
