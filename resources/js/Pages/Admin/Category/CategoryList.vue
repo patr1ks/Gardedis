@@ -11,7 +11,7 @@ defineProps({
 })
 
 
-const categories = usePage().props.categories;
+const categories = ref([...usePage().props.categories]);
 
 const selectedCategory = ref(null)
 
@@ -38,23 +38,19 @@ const AddCategory = async () => {
     formData.append('name', name.value);
 
     try {
-        await router.post('categories/store', formData, {
-            // headers: {
-            //     'Content-Type': 'multipart/form-data'
-            // },
-            onSuccess: (page) => {
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash?.success || 'Category added successfully!',
-                });
-                dialogVisible.value = false;
-                resetFormData();
-                router.visit('/admin/categories');
-            },
+        const response = await axios.post('/admin/categories/store', formData);
+        
+        categories.value.push(response.data.new_category); // update list
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            title: response.data.success || 'Category added successfully!',
         });
+        dialogVisible.value = false;
+        resetFormData();
     } catch (err) {
         console.error(err);
     }
@@ -79,32 +75,33 @@ const openEditModal = (category) => {
 }
 
 
-// update category
 const updateCategory = async () => {
     const formData = new FormData();
     formData.append('name', name.value);
     formData.append('_method', 'PUT');
 
     try {
-        await router.post('categories/update/'+id.value, formData, {
-            onSuccess: (page) => {
-                dialogVisible.value = false;
-                resetFormData();
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
-        })
+        const response = await axios.post(`/admin/categories/${id.value}`, formData);
+
+        const updated = response.data.updated_category;
+        const index = categories.value.findIndex(cat => cat.id === updated.id);
+        if (index !== -1) categories.value[index] = updated;
+
+        dialogVisible.value = false;
+        resetFormData();
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            title: response.data.success || 'Category updated successfully!',
+        });
     } catch (error) {
-        
+        console.error(error);
     }
 };
 
-//delete category
 const deleteCategory = async (category, index) => {
     Swal.fire({
         title: 'Are you sure?',
@@ -114,26 +111,30 @@ const deleteCategory = async (category, index) => {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                router.delete('categories/destroy/'+category.id, {
-                    onSuccess: (page) => {
-                        categories.splice(index, 1);
-                        Swal.fire({
-                            toast: true,
-                            icon: 'success',
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            title: page.props.flash.success
-                        });
-                    }
-                })
+                await axios.delete(`/admin/categories/destroy/${category.id}`);
+
+                categories.value.splice(index, 1); // Remove from UI
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    title: 'Category deleted successfully!'
+                });
             } catch (error) {
-                console.log(error);
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to delete category',
+                    text: error.response?.data?.message || 'Something went wrong'
+                });
             }
         }
-    })
+    });
 }
 </script>
 

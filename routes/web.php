@@ -90,6 +90,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function() {
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
     Route::delete('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
     Route::get('/categories/show-data/{id}', [CategoryController::class, 'showData'])->name('admin.categories.showData');
+    Route::put('categories/{id}', [CategoryController::class, 'update']);
 
     Route::get('/events', [EventController::class, 'index'])->name('admin.events.index');
     Route::post('/events/store', [EventController::class, 'store'])->name('admin.events.store');
