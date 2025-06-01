@@ -90,8 +90,8 @@ onMounted(async () => {
         <p class="text-3xl font-bold text-gray-900 dark:text-white">€{{ metrics.total_revenue }}</p>
       </div>
       <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">New Signups</h3>
-        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ metrics.recent_users.length }}</p>
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">New Signups (last 7 days)</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ metrics.new_signups_last_7_days }}</p>
       </div>
     </div>
 
@@ -111,12 +111,8 @@ onMounted(async () => {
     <div class="p-5 bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
       <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Recent Registrations</h2>
       <ul class="space-y-2">
-        <li
-          v-for="(user, index) in metrics.recent_users"
-          :key="index"
-          class="text-gray-700 dark:text-gray-300"
-        >
-          {{ user.email }} — Joined {{ new Date(user.created_at).toLocaleDateString() }}
+        <li v-for="(user, index) in metrics.recent_users" :key="index" class="text-gray-700 dark:text-gray-300">
+          {{ user.email }} — Joined {{new Date(user.created_at).toLocaleDateString('en-GB', {day: '2-digit',month: '2-digit',year: 'numeric'})}}
         </li>
       </ul>
     </div>

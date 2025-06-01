@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Restaurant;
 use App\Models\Payment;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -22,11 +23,15 @@ class DashboardController extends Controller
                 ''
             ),
 
+            // Show 5 most recent user accounts
             'recent_users' => User::latest()
                 ->take(5)
                 ->get(['email', 'created_at']),
 
-            // Revenue per week (all weeks in DB)
+            // Count users registered in the last 7 days
+            'new_signups_last_7_days' => User::where('created_at', '>=', Carbon::now()->subDays(7))->count(),
+
+            // Revenue grouped per week
             'revenue_per_week' => Payment::selectRaw('YEAR(created_at) as year, WEEK(created_at, 1) as week, SUM(price) as total')
                 ->groupBy('year', 'week')
                 ->orderBy('year')
@@ -38,6 +43,7 @@ class DashboardController extends Controller
                     ];
                 }),
 
+            // Role distribution
             'user_roles' => [
                 'Admin' => User::where('isAdmin', true)->count(),
                 'Restaurant Owner' => User::where('isRestaurant', true)->count(),
