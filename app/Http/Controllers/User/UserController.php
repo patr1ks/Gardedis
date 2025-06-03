@@ -23,12 +23,12 @@ class UserController extends Controller
         $restaurants = Restaurant::with('categories', 'restaurant_images')
             ->where('published', 0)
             ->orderBy('id', 'desc')
-            ->limit(5)
+            ->limit(6)
             ->get();
     
         $events = Event::with('restaurant', 'event_images')
             ->orderBy('id', 'desc')
-            ->limit(5)
+            ->limit(6)
             ->get();
     
         return Inertia::render('User/Index', [
@@ -63,11 +63,11 @@ class UserController extends Controller
             ->orderBy('id', 'desc')
             ->get();
     
-        $categories = Category::orderBy('name')->get(); // Fetch all categories
+        $categories = Category::orderBy('name')->get();
     
         return Inertia::render('User/Restaurant', [
             'restaurants' => $restaurants,
-            'categories' => $categories, // ✅ Now passed to Vue
+            'categories' => $categories,
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'laravelVersion' => Application::VERSION,

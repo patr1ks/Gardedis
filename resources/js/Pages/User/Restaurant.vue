@@ -79,7 +79,7 @@ const toggleCategory = (category) => {
         </div>
 
         <!-- Restaurant List -->
-        <div class="flex flex-col gap-y-6">
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
             v-for="restaurant in filteredRestaurants"
             :key="restaurant.id"
