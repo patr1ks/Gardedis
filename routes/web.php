@@ -165,7 +165,8 @@ Route::middleware(['auth', 'restaurant-owner'])->prefix('restaurant-owner')->gro
     Route::get('/payments', [OwnerPaymentController::class, 'index'])->name('restaurantOwner.payments.index');
     Route::delete('/payments/destroy/{id}', [OwnerPaymentController::class, 'destroy'])->name('restaurantOwner.payments.destroy');
     Route::get('/payments/show-data/{id}', [OwnerPaymentController::class, 'showData'])->name('restaurantOwner.payments.showData');
-    Route::put('/payments/update-status/{id}', [PaymentController::class, 'updateStatus'])->name('restaurantOwner.payments.updateStatus');
+    Route::put('/payments/update-status/{id}', [OwnerPaymentController::class, 'updateStatus']);
+
 });
 
 require __DIR__.'/auth.php';

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Restaurant;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Payment;
 use Inertia\Inertia;
+use App\Models\Reservation;
 
 class OwnerPaymentController extends Controller
 {
@@ -13,32 +13,36 @@ class OwnerPaymentController extends Controller
     {
         $userId = auth()->id();
     
-        $payments = Payment::with(['user', 'reservation.restaurant'])
-            ->whereHas('reservation.restaurant', function ($query) use ($userId) {
+        $reservations = Reservation::with(['user', 'restaurant'])
+            ->whereHas('restaurant', function ($query) use ($userId) {
                 $query->where('owner', $userId);
             })
             ->latest()
             ->get();
     
         return Inertia::render('RestaurantOwner/Payment/Index', [
-            'payments' => $payments,
+            'reservations' => $reservations,
         ]);
-    }    
+    }
+    
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string'
+        ]);
+    
+        $reservation = Reservation::findOrFail($id);
+        $reservation->status = $request->status;
+        $reservation->save();
+    
+        return response()->json(['message' => 'Status updated']);
+    }   
 
     public function destroy($id)
     {
-        Payment::findOrFail($id)->delete();
+        Reservation::findOrFail($id)->delete();
 
         return redirect()->route('restaurantOwner.payments.index')
             ->with('success', 'Payment deleted successfully');
-    }
-
-    public function showData($id)
-    {
-        $payment = Payment::with(['user', 'reservation.restaurant'])->findOrFail($id);
-
-        return response()->json([
-            'payment' => $payment
-        ]);
     }
 }
