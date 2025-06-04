@@ -43,7 +43,7 @@ defineProps({
                 Restaurant: {{ event.restaurant?.title || 'N/A' }}
               </p>
               <div class="text-lg font-semibold text-gray-900 dark:text-white mt-auto">
-                Event Date: {{ event.event_date }}
+                Event Date: {{new Date(event.event_date).toLocaleDateString('lv-LV', {day: '2-digit',month: '2-digit',year: 'numeric'})}}
               </div>
             </div>
           </Link>

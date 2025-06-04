@@ -82,8 +82,12 @@ const prevImage = () => {
 
           <!-- Options -->
           <div class="mt-4 lg:row-span-3 lg:mt-0">
-            <h2 class="sr-only">Restaurant information</h2>
-            <p class="text-3xl tracking-tight text-gray-900 dark:text-white">Event date: {{ event.event_date }}</p>
+            <p class="text-3xl tracking-tight text-gray-900 dark:text-white">
+              Restaurant: {{ event.restaurant?.title}}
+            </p>
+            <p class="text-2xl tracking-tight text-gray-700 dark:text-gray-300 mt-2">
+              Event Date: {{new Date(event.event_date).toLocaleDateString('lv-LV', {day: '2-digit',month: '2-digit',year: 'numeric'})}}
+            </p>
           </div>
 
           <div class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 dark:lg:border-gray-700 lg:pt-6 lg:pr-8 lg:pb-16">
