@@ -257,7 +257,7 @@ class UserController extends Controller
     public function paymentCancel($id)
     {
         $reservation = Reservation::findOrFail($id);
-        $reservation->update(['status' => 'cancelled']);
+        $reservation->update(['status' => 'payment pending']);
 
         return redirect()->route('user.reservations')->with('error', 'Payment was cancelled.');
     }

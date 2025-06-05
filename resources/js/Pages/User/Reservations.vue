@@ -9,10 +9,14 @@ const reservations = ref(props.reservations);
 const cancelReservation = async (reservation) => {
   try {
     await axios.post(`/reservations/${reservation.id}/cancel`);
-    reservation.status = 'cancelled'; // instantly reflect in UI
+    reservation.status = 'cancelled';
   } catch (error) {
     console.error('Failed to cancel reservation:', error);
   }
+};
+
+const payForReservation = (reservationId) => {
+  window.location.href = `/reservations/pay/${reservationId}`;
 };
 </script>
 
@@ -34,7 +38,14 @@ const cancelReservation = async (reservation) => {
               <strong>Table:</strong> {{ reservation.table_number }}
             </p>
             <p class="text-sm text-gray-600 dark:text-gray-300">
-              <strong>Date:</strong> {{ reservation.reservation_date }}
+              <strong>Date:</strong>
+              {{
+                new Date(reservation.reservation_date).toLocaleDateString('lv-LV', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })
+              }}
             </p>
             <p class="text-sm text-gray-600 dark:text-gray-300">
               <strong>Time:</strong> {{ reservation.time }}
@@ -43,13 +54,23 @@ const cancelReservation = async (reservation) => {
               <strong>Status:</strong> {{ reservation.status }}
             </p>
 
-            <button
-              v-if="reservation.status !== 'cancelled'"
-              @click="cancelReservation(reservation)"
-              class="text-sm px-4 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-            >
-              Cancel
-            </button>
+            <div class="flex gap-2">
+              <button
+                v-if="reservation.status !== 'cancelled'"
+                @click="cancelReservation(reservation)"
+                class="text-sm px-4 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                v-if="reservation.status === 'payment pending'"
+                @click="payForReservation(reservation.id)"
+                class="text-sm px-4 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+              >
+                Pay
+              </button>
+            </div>
           </div>
         </div>
         <div v-else class="text-gray-500 dark:text-gray-400">

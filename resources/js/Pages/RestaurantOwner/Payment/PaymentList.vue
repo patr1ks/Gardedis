@@ -6,7 +6,7 @@ import axios from 'axios';
 const reservations = usePage().props.reservations;
 
 const dropdownOpen = ref(null);
-const statusOptions = ['pending', 'confirmed', 'cancelled'];
+const statusOptions = ['payment pending', 'confirmed', 'cancelled'];
 
 const toggleDropdown = (id) => {
   dropdownOpen.value = dropdownOpen.value === id ? null : id;
