@@ -74,7 +74,7 @@ class RestaurantController extends Controller
     public function update(Request $request, $id)
     {
         $restaurant = Restaurant::findOrFail($id);
-
+    
         $validated = $request->validate([
             'title' => 'required|string|max:200',
             'description' => 'nullable|string',
@@ -83,31 +83,34 @@ class RestaurantController extends Controller
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:categories,id',
         ]);
-
+    
         $restaurant->title = $validated['title'];
         $restaurant->description = $validated['description'];
         $restaurant->price = $validated['price'];
         $restaurant->owner = $validated['owner'];
         $restaurant->save();
-
-        // Sync categories
+    
         $restaurant->categories()->sync($validated['category_ids']);
-
-        // Upload new images if any
+    
         if ($request->hasFile('restaurant_images')) {
             foreach ($request->file('restaurant_images') as $image) {
                 $uniqueName = time() . '-' . Str::random(10) . '.' . $image->getClientOriginalExtension();
                 $image->move('restaurant_images', $uniqueName);
-
+    
                 Image::create([
                     'restaurant_id' => $restaurant->id,
                     'image' => 'restaurant_images/' . $uniqueName,
                 ]);
             }
         }
-
-        return redirect()->back()->with('success', 'Restaurant updated successfully');
-    }
+    
+        $restaurant = Restaurant::with('categories', 'restaurant_images', 'user')->findOrFail($restaurant->id);
+    
+        return response()->json([
+            'success' => 'Restaurant updated successfully',
+            'restaurant' => $restaurant,
+        ]);
+    }    
 
     public function deleteImage($id)
     {

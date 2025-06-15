@@ -149,27 +149,33 @@ const updateRestaurant = async () => {
     formData.append('description', description.value);
     formData.append('price', price.value);
     formData.append('owner', owner.value);
-    formData.append('_method', 'PUT');
     category_ids.value.forEach(id => formData.append('category_ids[]', id));
+    formData.append('_method', 'PUT');
 
     for (const image of restaurantImages.value) {
         formData.append('restaurant_images[]', image.raw);
     }
 
     try {
-        await router.post('restaurants/update/' + id.value, formData, {
-            onSuccess: (page) => {
-                dialogVisible.value = false;
-                resetFormData();
-                Swal.fire({
-                    toast: true,
-                    icon: 'success',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    title: page.props.flash.success
-                });
-            }
+        const response = await axios.post('/admin/restaurants/update/' + id.value, formData);
+        const updatedRestaurant = response.data.restaurant;
+
+        const index = restaurants.findIndex(r => r.id === updatedRestaurant.id);
+        if (index !== -1) {
+            restaurants[index] = updatedRestaurant;
+        }
+
+        dialogVisible.value = false;
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            position: 'top-end',
+            showConfirmButton: false,
+            title: response.data.success
         });
+
+        resetFormData();
+
     } catch (error) {
         console.error(error);
     }
