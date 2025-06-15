@@ -36,7 +36,7 @@ class OwnerPaymentController extends Controller
         $reservation->save();
     
         return response()->json(['message' => 'Status updated']);
-    }   
+    } 
 
     public function destroy($id)
     {
