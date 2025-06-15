@@ -7,7 +7,7 @@ import { onMounted, nextTick } from 'vue';
 import { Datepicker } from 'flowbite';
 import 'flowbite';
 import { computed } from 'vue';
-// import VueSweetalert2 from 'vue-sweetalert2';
+import axios from 'axios';
 
 
 defineProps({
@@ -179,7 +179,7 @@ const updateEvent = async () => {
 };
 
 //delete event
-const deleteEvent = async (event, index) => {
+const deleteEvent = async (event) => {
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -188,26 +188,35 @@ const deleteEvent = async (event, index) => {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
+    }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                router.delete('events/destroy/'+event.id, {
-                    onSuccess: (page) => {
-                        this.delete(event, index);
-                        Swal.fire({
-                            toast: true,
-                            icon: 'success',
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            title: page.props.flash.success
-                        });
-                    }
-                })
+                await axios.delete(`/admin/events/destroy/${event.id}`);
+
+                // Find index based on event id
+                const idx = events.findIndex(e => e.id === event.id);
+                if (idx !== -1) {
+                    events.splice(idx, 1);
+                }
+
+                Swal.fire({
+                    toast: true,
+                    icon: 'success',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    title: 'Event deleted successfully!'
+                });
             } catch (error) {
-                console.log(error);
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to delete event',
+                    text: error.response?.data?.message || 'Something went wrong'
+                });
             }
         }
-    })
+    });
 }
 
 const searchQuery = ref('');
